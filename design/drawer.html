@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="../dist/style.css" />
+    <title>Start Page</title>
+  </head>
+  <body>
+    <div
+      class="bg"
+      style="
+        background-image: url('../dist/img/chuttersnap-JH0wCegJsrQ-unsplash.jpg');
+      "
+    >
+      <button class="gear">
+        <i data-feather="settings"></i>
+      </button>
+      <!-- Drawer -->
+      <div class="drawer">
+        <button class="drawer__close"><i data-feather="x"></i></button>
+        <h3>搜索引擎设置  <button class="drawer-entry__add"><i data-feather="plus-square"></i></button></h3>
+        <div class="drawer-entry">
+          <input type="text" placeholder="名称" />
+          <input type="text" placeholder="搜索链接" />
+          <span><i data-feather="github"></i></span>
+          <input type="text" placeholder="SVG图标" />
+           <button class="drawer-entry__add"><i data-feather="minus-square"></i></button>
+        </div>
+     
+        <h3>关于</h3>
+        <div class="drawer-about">
+          <div class="drawer-about__repo"><i data-feather="github"></i><a>Start Page</a></div>
+          <div>
+          <span
+            >Photo by
+            <a
+              href="https://unsplash.com/@chuttersnap?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText"
+              >CHUTTERSNAP</a
+            >
+            on
+            <a
+              href="https://unsplash.com/s/photos/cityscape?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText"
+              >Unsplash</a
+            ></span
+          >
+          </div>
+        </div>
+     
+      </div>
+      <div class="container">
+        <!-- 时间 -->
+        <!-- 数字中间必须空格不然不能分散对齐 -->
+        <div class="timebar">
+          <div class="timebar__time">1 9 : 2 2</div>
+          <div class="timebar__hr"></div>
+          <div class="timebar__date">2 0 2 0 / 1 0 / 1 6</div>
+          <div class="timebar__hr"></div>
+          <div class="timebar__week">F r i d a y</div>
+        </div>
+        <!-- 搜索框 -->
+        <div class="searchbar">
+          <div class="searchbar__select">百度</div>
+          <input type="text" class="searchbar__input" /><button
+            class="searchbar__btn"
+          >
+            <i data-feather="search"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    feather.replace();
+  </script>
+</html>
