@@ -20,10 +20,12 @@ type alias BackgroundPhoto =
     , url : String
     }
 
-type alias SaveData = 
-  {
-    search: Array Link
-  }
+
+type alias SaveData =
+    { search : Array Link
+    }
+
+
 initLink : Link
 initLink =
     { name = ""
@@ -62,15 +64,6 @@ defaultSearchEngine =
         ]
 
 
-background : BackgroundPhoto
-background =
-    { url = "https://unsplash.com/s/photos/cityscape?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
-    , photographer = "CHUTTERSNAP"
-    , photographerUrl = "https://unsplash.com/@chuttersnap?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
-    , file = "chuttersnap-JH0wCegJsrQ-unsplash.jpg"
-    }
-
-
 dataToJson : Array Link -> E.Value
 dataToJson arr =
     let
@@ -79,3 +72,11 @@ dataToJson arr =
     in
     E.object [ ( "search", E.array linkToJson arr ) ]
 
+
+jsonToData : D.Decoder SaveData
+jsonToData =
+    let
+        linkDecoder =
+            D.map3 Link (D.field "name" D.string) (D.field "url" D.string) (D.maybe (D.field "icon" D.string))
+    in
+    D.map SaveData (D.field "search" (D.array linkDecoder))

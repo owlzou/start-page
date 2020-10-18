@@ -3,12 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
     <link rel="stylesheet" href="../dist/style.css" />
     <title>Start Page</title>
   </head>
   <body>
-    <div class="bg" style="background-image:url('../dist/img/chuttersnap-JH0wCegJsrQ-unsplash.jpg')">
+    <div
+      class="bg"
+      style="
+        background-image: url('../dist/img/chuttersnap-JH0wCegJsrQ-unsplash.jpg');
+      "
+    >
       <button class="gear">
         <i data-feather="settings"></i>
       </button>
@@ -23,13 +28,15 @@
           <div class="timebar__week">F r i d a y</div>
         </div>
         <!-- 搜索框 -->
-        <div class="searchbar">
-          <div class="searchbar__select">百度</div>
-          <input type="text" class="searchbar__input" /><button
-            class="searchbar__btn"
-          >
-            <i data-feather="search"></i>
-          </button>
+        <div class="searchbar-wrap">
+          <div class="searchbar">
+            <div class="searchbar__select">百度</div>
+            <input type="text" class="searchbar__input" /><button
+              class="searchbar__btn"
+            >
+              <i data-feather="search"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>

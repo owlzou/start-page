@@ -3,7 +3,7 @@ port module Main exposing (main)
 import Array exposing (Array)
 import Browser
 import Browser.Navigation exposing (back)
-import Data exposing (Link, SaveData, background, dataToJson, defaultSearchEngine, initLink)
+import Data exposing (Link, SaveData, dataToJson, defaultSearchEngine, initLink, jsonToData)
 import Html exposing (Html, a, button, div, footer, h3, input, li, span, text, ul)
 import Html.Attributes exposing (class, href, placeholder, style, title, type_, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onFocus, onInput)
@@ -43,14 +43,7 @@ type alias Model =
 
 init : E.Value -> ( Model, Cmd Msg )
 init val =
-    let
-        decoder =
-            D.map SaveData (D.field "search" (D.array linkDecoder))
-
-        linkDecoder =
-            D.map3 Link (D.field "name" D.string) (D.field "url" D.string) (D.maybe (D.field "icon" D.string))
-    in
-    case D.decodeValue decoder val of
+    case D.decodeValue jsonToData val of
         Ok v ->
             ( { initModel | searchEngines = v.search }, Task.perform AdjustTimeZone Time.here )
 
@@ -212,7 +205,7 @@ port saveToStorage : E.Value -> Cmd msg
 
 view : Model -> Html Msg
 view model =
-    div [ class "bg", style "background-image" ("url(img/" ++ background.file ++ ")") ]
+    div [ class "bg", style "background-image" "url(img/chuttersnap-JH0wCegJsrQ-unsplash.jpg)" ]
         [ div [ class "container" ]
             [ settingBtn
             , lazy drawer model
@@ -240,15 +233,17 @@ drawer model =
     in
     div [ class "drawer", style "transform" translate ]
         [ button [ class "drawer__close", onClick (OnDrawerOpen False) ] [ Icons.x ]
-        , h3 []
-            [ text "搜索引擎设置"
-            , button [ class "drawer-entry__add", onClick OnEntryAdd ] [ Icons.plusSquare ]
-            ]
-        , Keyed.node "ul" [] (Array.toList <| Array.indexedMap keyedLink model.searchEngines)
-        , h3 [] [ text "关于" ]
-        , div [ class "drawer-about" ]
-            [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page" ] [ text "owlzou / start-page" ] ]
-            , backgroundCredit
+        , div [ class "drawer-content" ]
+            [ h3 []
+                [ text "搜索引擎设置"
+                , button [ class "drawer-entry__add", onClick OnEntryAdd ] [ Icons.plusSquare ]
+                ]
+            , Keyed.node "ul" [] (Array.toList <| Array.indexedMap keyedLink model.searchEngines)
+            , h3 [] [ text "关于" ]
+            , div [ class "drawer-about" ]
+                [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page" ] [ text "owlzou / start-page" ] ]
+                , backgroundCredit
+                ]
             ]
         ]
 
@@ -329,27 +324,29 @@ searchbar model =
             else
                 "0.3"
     in
-    div [ class "searchbar", style "opacity" op ]
-        [ div [ class "searchbar__select", onClick OnSearchSelectOpen ]
-            [ case model.curSearchEngine.icon of
-                Just path ->
-                    Icons.svgIcon path
+    div [ class "searchbar-wrap" ]
+        [ div [ class "searchbar", style "opacity" op ]
+            [ div [ class "searchbar__select", onClick OnSearchSelectOpen ]
+                [ case model.curSearchEngine.icon of
+                    Just path ->
+                        Icons.svgIcon path
 
-                Nothing ->
-                    text model.curSearchEngine.name
+                    Nothing ->
+                        text model.curSearchEngine.name
+                ]
+            , input
+                [ class "searchbar__input"
+                , type_ "text"
+                , value model.keyword
+                , onFocus (OnSearchbarFocus True)
+                , onBlur (OnSearchbarFocus False)
+                , onInput OnSearchInput
+                , onEnter OnSearch
+                ]
+                []
+            , button [ class "searchbar__btn", onClick OnSearch ]
+                [ Icons.search ]
             ]
-        , input
-            [ class "searchbar__input"
-            , type_ "text"
-            , value model.keyword
-            , onFocus (OnSearchbarFocus True)
-            , onBlur (OnSearchbarFocus False)
-            , onInput OnSearchInput
-            , onEnter OnSearch
-            ]
-            []
-        , button [ class "searchbar__btn", onClick OnSearch ]
-            [ Icons.search ]
         ]
 
 
@@ -388,10 +385,10 @@ backgroundCredit =
     footer []
         [ span []
             [ text "Photo by "
-            , a [ href background.photographerUrl ]
-                [ text background.photographer ]
+            , a [ href "https://unsplash.com/@chuttersnap?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" ]
+                [ text "CHUTTERSNAP" ]
             , text " on "
-            , a [ href background.url ]
+            , a [ href "https://unsplash.com/s/photos/cityscape?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" ]
                 [ text "Unsplash" ]
             ]
         ]
