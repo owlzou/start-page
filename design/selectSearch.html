@@ -3,11 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-     <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
     <link rel="stylesheet" href="../dist/style.css" />
     <title>Start Page</title>
   </head>
   <body>
+    <div
+      class="bg"
+      style="
+        background-image: url('../dist/img/chuttersnap-JH0wCegJsrQ-unsplash.jpg');
+      "
+    >
     <div class="container">
       <!-- 时间 -->
       <!-- 数字中间必须空格不然不能分散对齐 -->
@@ -29,13 +35,16 @@
       </div>
       <!--搜索引擎选择-->
       <div class="searchbar-list">
-        <a>百度</a>
-        <a>谷歌</a>
-        <a>Bing</a>
+        <ul>
+          <li><a>百度</a></li>
+          <li><a>谷歌</a></li>
+          <li><a>Bing</a></li>
+        </ul>
       </div>
+    </div>
     </div>
   </body>
   <script>
-  feather.replace()
+    feather.replace();
   </script>
 </html>

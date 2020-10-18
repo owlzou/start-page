@@ -1,273 +1,285 @@
 :root {
-	--container-width: 40rem;
-	--search-border-radius: 2rem;
-	--search-font: 1.2rem;
-	--search-padding: 0.9rem;
-	--search-engine-color: #909090;
-	--search-tri: 0.7rem;
-	--color-blackbg: rgba(0, 0, 0, 0.5);
-	--color-main: #ffeeaa;
-	--color-reverse: #fff;
-	--color-reverse-sub: #404040;
+  --container-width: 40rem;
+  --search-border-radius: 2rem;
+  --search-font: 1.2rem;
+  --search-padding: 0.9rem;
+  --search-engine-color: #909090;
+  --search-tri: 0.7rem;
+  --color-blackbg: rgba(0, 0, 0, 0.5);
+  --color-main: #ffeeaa;
+  --color-reverse: #fff;
+  --color-reverse-sub: #404040;
 }
 body {
-	margin: 0;
-	width: 100%;
-	height: 100vh;
+  margin: 0;
+  width: 100%;
+  height: 100vh;
 }
 button {
-	border: none;
-	background-color: transparent;
-	cursor: pointer;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+ul {
+  margin: 0;
+  padding: 0;
+}
+li {
+  list-style-type: none;
 }
 .bg {
-	position: absolute;
-	top: 0;
-	margin: 0;
-	background-size: cover;
-	width: 100%;
-	height: 100vh;
+  position: absolute;
+  top: 0;
+  margin: 0;
+  background-size: cover;
+  width: 100%;
+  height: 100vh;
 }
 .container {
-	margin: 0 auto;
-	padding-top: 5%;
-	max-width: var(--container-width);
+  margin: 0 auto;
+  padding-top: 5%;
+  max-width: var(--container-width);
 }
 /*-----------------设置按钮-----------------*/
 .gear {
-	position: absolute;
-	top: 0;
-	left: 0;
-	margin: 1rem;
-	padding: 0;
-	color: var(--color-reverse);
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 1rem;
+  padding: 0;
+  color: var(--color-reverse);
 }
 .gear svg:hover {
-	animation: turn 1s linear infinite;
+  animation: turn 1s linear infinite;
 }
 /*-----------------抽屉-----------------*/
 .drawer {
-	position: absolute;
-	top: 0;
-	left: 0;
-	transition: transform 0.5s;
-	z-index: 900;
-	background: rgba(0, 0, 0, 0.8);
-	width: 40rem;
-	max-width: 100%;
-	height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: transform 0.5s;
+  z-index: 900;
+  background: rgba(0, 0, 0, 0.8);
+  width: 40rem;
+  max-width: 100%;
+  height: 100vh;
 }
 .drawer__close {
-	position: absolute;
-	top: 0;
-	right: 0;
-	z-index: 1000;
-	margin: 1rem;
-	padding: 0;
-	color: var(--color-reverse);
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  margin: 1rem;
+  padding: 0;
+  color: var(--color-reverse);
 }
 .drawer h3 {
-	display: inline-block;
-	position: relative;
-	padding: 0 2rem;
-	color: var(--color-reverse);
+  display: inline-block;
+  position: relative;
+  padding: 0 2rem;
+  color: var(--color-reverse);
 }
 .drawer h3::before {
-	display: inline-block;
-	margin-right: 1rem;
-	background-color: var(--color-reverse);
-	width: 0.5rem;
-	height: 1.5rem;
-	content: "";
+  display: inline-block;
+  margin-right: 1rem;
+  background-color: var(--color-reverse);
+  width: 0.5rem;
+  height: 1.5rem;
+  content: "";
 }
 /*-----------------输入-----------------*/
 .drawer-entry {
-	display: grid;
-	grid-template-rows: 1fr 1fr;
-	grid-template-columns: 5rem 1fr 24px;
-	padding: 0.5rem 2rem;
-	gap: 0.5rem;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 5rem 1fr 24px;
+  padding: 0.5rem 2rem;
+  gap: 0.5rem;
 }
 .drawer-entry__add,
+.drawer-entry__save,
 .drawer-entry__delete {
-	transition: 0.5s;
-	padding: 0;
-	height: 24px;
-	vertical-align: bottom;
+  transition: 0.5s;
+  padding: 0;
+  height: 24px;
+  vertical-align: bottom;
 }
 .drawer-entry__delete {
-	color: var(--color-reverse-sub);
+  color: var(--color-reverse-sub);
 }
 .drawer-entry__delete:hover {
-	color: var(--color-reverse);
+  color: var(--color-reverse);
 }
-.drawer-entry__add {
-	margin: 0 0.5rem;
-	color: var(--color-reverse);
+.drawer-entry__add,
+.drawer-entry__save {
+  margin: 0 0.5rem;
+  color: var(--color-reverse);
 }
 .drawer-entry input {
-	transition: 0.5s;
-	border: none;
-	border-bottom: solid var(--color-reverse-sub) 2px;
-	background-color: transparent;
-	padding: 0.2rem 0.5rem;
-	height: 1.5rem;
-	color: var(--color-reverse);
+  transition: 0.5s;
+  border: none;
+  border-bottom: solid var(--color-reverse-sub) 2px;
+  background-color: transparent;
+  padding: 0.2rem 0.5rem;
+  height: 1.5rem;
+  color: var(--color-reverse);
 }
 .drawer-entry input:focus {
-	border-bottom: solid var(--color-reverse) 2px;
+  border-bottom: solid var(--color-reverse) 2px;
 }
 .drawer-entry input:nth-of-type(2) {
-	grid-column-start: 2;
-	grid-column-end: 4;
+  grid-column-start: 2;
+  grid-column-end: 4;
 }
 .drawer-entry input:nth-of-type(3) {
-	color: var(--color-reverse-sub);
+  color: var(--color-reverse-sub);
 }
 .drawer-entry > svg {
-	margin: 0.2rem auto;
-	color: var(--color-reverse);
+  margin: 0.2rem auto;
+  color: var(--color-reverse);
 }
 /*-----------------落款-----------------*/
 .drawer-about {
-	margin: 0.5rem 2rem;
-	color: var(--color-reverse);
+  margin: 0.5rem 2rem;
+  color: var(--color-reverse);
 }
 .drawer-about a {
-	color: var(--color-reverse);
+  color: var(--color-reverse);
 }
 .drawer-about__repo {
-	display: flex;
-	align-items: center;
-	transition: 0.5s;
-	margin-bottom: 1rem;
-	border: solid var(--color-reverse-sub) 2px;
-	padding: 0.5rem;
-	width: max-content;
-	color: var(--color-reverse);
+  display: flex;
+  align-items: center;
+  transition: 0.5s;
+  margin-bottom: 1rem;
+  border: solid var(--color-reverse-sub) 2px;
+  padding: 0.5rem;
+  width: max-content;
+  color: var(--color-reverse);
 }
 .drawer-about__repo svg {
-	margin-right: 0.5rem;
+  margin-right: 0.5rem;
 }
 .drawer-about__repo:hover {
-	border: solid var(--color-reverse) 2px;
+  border: solid var(--color-reverse) 2px;
 }
 /*-----------------搜索栏-----------------*/
 .searchbar {
-	display: flex;
-	flex-wrap: nowrap;
-	align-items: center;
-	transition: 0.5s;
-	padding: 0.5rem 1rem;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  transition: 0.5s;
+  padding: 0.5rem 1rem;
 }
 .searchbar__select {
-	display: inline-block;
-	flex-shrink: 0;
-	border-radius: var(--search-border-radius) 0 0 var(--search-border-radius);
-	background-color: #fff;
-	cursor: pointer;
-	padding: var(--search-padding);
-	padding-right: 0;
-	padding-left: var(--search-border-radius);
-	height: var(--search-font);
-	color: var(--search-engine-color);
+  display: inline-block;
+  flex-shrink: 0;
+  border-radius: var(--search-border-radius) 0 0 var(--search-border-radius);
+  background-color: #fff;
+  cursor: pointer;
+  padding: var(--search-padding);
+  padding-right: 0;
+  padding-left: var(--search-border-radius);
+  height: var(--search-font);
+  color: var(--search-engine-color);
 }
 .searchbar__select svg {
-	position: relative;
-	top: -2px;
-	color: var(--search-engine-color);
+  position: relative;
+  top: -2px;
+  color: var(--search-engine-color);
 }
 .searchbar__input {
-	flex-grow: 1;
-	border: none;
-	padding: var(--search-padding);
-	height: var(--search-font);
-	font-size: 1rem;
+  flex-grow: 1;
+  border: none;
+  padding: var(--search-padding);
+  height: var(--search-font);
+  font-size: 1rem;
 }
 .searchbar__btn {
-	border: none;
-	border-radius: 0 var(--search-border-radius) var(--search-border-radius) 0;
-	background: #fff;
-	cursor: pointer;
-	padding: var(--search-padding);
-	padding-right: var(--search-border-radius);
-	height: calc(var(--search-font) + 2 * var(--search-padding));
-	font-size: var(--search-font);
+  border: none;
+  border-radius: 0 var(--search-border-radius) var(--search-border-radius) 0;
+  background: #fff;
+  cursor: pointer;
+  padding: var(--search-padding);
+  padding-right: var(--search-border-radius);
+  height: calc(var(--search-font) + 2 * var(--search-padding));
+  font-size: var(--search-font);
 }
 .searchbar__btn svg {
-	position: relative;
-	top: -2px;
-	color: var(--search-engine-color);
+  position: relative;
+  top: -2px;
+  color: var(--search-engine-color);
 }
 .searchbar-list {
-	display: flex;
-	position: relative;
-	transition: 0.5s;
-	margin: 0 1rem;
-	border-radius: var(--search-border-radius);
-	background: var(--color-blackbg);
-	padding: var(--search-padding) var(--search-border-radius);
-	color: #fff;
+  position: relative;
+  transition: 0.5s;
+  margin: 0 1rem;
+  border-radius: var(--search-border-radius);
+  background: var(--color-blackbg);
+  padding: var(--search-padding) var(--search-border-radius);
+  color: #fff;
 }
 .searchbar-list::before {
-	position: absolute;
-	top: -0.7rem;
-	border-width: 0 var(--search-tri) var(--search-tri) var(--search-tri);
-	border-style: solid;
-	border-color: transparent transparent var(--color-blackbg) transparent;
-	width: 0;
-	height: 0;
-	content: "";
+  position: absolute;
+  top: -0.7rem;
+  border-width: 0 var(--search-tri) var(--search-tri) var(--search-tri);
+  border-style: solid;
+  border-color: transparent transparent var(--color-blackbg) transparent;
+  width: 0;
+  height: 0;
+  content: "";
 }
-.searchbar-list a {
-	cursor: pointer;
-	width: 5rem;
-	height: 24px;
+.searchbar-list ul {
+  display: flex;
+  width: 100%;
+}
+.searchbar-list li {
+  cursor: pointer;
+  width: 5rem;
+  height: 24px;
 }
 /*-----------------时间-----------------*/
 .timebar {
-	margin: 0 auto;
-	padding: 1rem;
-	width: 100%;
-	max-width: 18rem;
-	color: var(--color-reverse);
-	font-size: 1rem;
+  margin: 0 auto;
+  padding: 1rem;
+  width: 100%;
+  max-width: 18rem;
+  color: var(--color-reverse);
+  font-size: 1rem;
 }
 .timebar__time,
 .timebar__date,
 .timebar__week {
-	width: 100%;
-	text-align: justify;
-	text-align-last: justify;
+  width: 100%;
+  text-align: justify;
+  text-align-last: justify;
 }
 .timebar__time {
-	font-size: 5em;
+  font-size: 5em;
 }
 .timebar__date {
-	font-size: 2em;
+  font-size: 2em;
 }
 .timebar__week {
-	font-size: 3em;
+  font-size: 3em;
 }
 .timebar__hr {
-	background: var(--color-reverse);
-	height: 2px;
+  background: var(--color-reverse);
+  height: 2px;
 }
 /*-----------------动画-----------------*/
 @keyframes turn {
-	0% {
-		transform: rotate(0deg);
-	}
-	25% {
-		transform: rotate(90deg);
-	}
-	50% {
-		transform: rotate(180deg);
-	}
-	75% {
-		transform: rotate(270deg);
-	}
-	100% {
-		transform: rotate(360deg);
-	}
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(90deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  75% {
+    transform: rotate(270deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
