@@ -3,10 +3,12 @@ port module Main exposing (main)
 import Array exposing (Array)
 import Browser
 import Browser.Navigation exposing (back)
-import Data exposing (Link, background, defaultSearchEngine, initLink)
-import Html exposing (Html, a, button, div, footer, h3, input, span, text)
+import Data exposing (Link, SaveData, background, dataToJson, defaultSearchEngine, initLink)
+import Html exposing (Html, a, button, div, footer, h3, input, li, span, text, ul)
 import Html.Attributes exposing (class, href, placeholder, style, title, type_, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onFocus, onInput)
+import Html.Keyed as Keyed
+import Html.Lazy exposing (lazy)
 import Icons
 import Json.Decode as D
 import Json.Encode as E
@@ -18,7 +20,7 @@ import Time
 -- MAIN
 
 
-main : Program () Model Msg
+main : Program E.Value Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -39,9 +41,21 @@ type alias Model =
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( initModel, Task.perform AdjustTimeZone Time.here )
+init : E.Value -> ( Model, Cmd Msg )
+init val =
+    let
+        decoder =
+            D.map SaveData (D.field "search" (D.array linkDecoder))
+
+        linkDecoder =
+            D.map3 Link (D.field "name" D.string) (D.field "url" D.string) (D.maybe (D.field "icon" D.string))
+    in
+    case D.decodeValue decoder val of
+        Ok v ->
+            ( { initModel | searchEngines = v.search }, Task.perform AdjustTimeZone Time.here )
+
+        Err _ ->
+            ( initModel, Task.perform AdjustTimeZone Time.here )
 
 
 initModel : Model
@@ -135,7 +149,7 @@ update msg model =
             ( { model | zone = zone }, Cmd.none )
 
         OnDrawerOpen b ->
-            ( { model | drawerOpen = b }, Cmd.none )
+            ( { model | drawerOpen = b }, saveToStorage <| dataToJson model.searchEngines )
 
         OnEntryInput index type_ str ->
             let
@@ -189,6 +203,9 @@ port newWindow : String -> Cmd msg
 port receiver : (E.Value -> msg) -> Sub msg
 
 
+port saveToStorage : E.Value -> Cmd msg
+
+
 
 -- VIEW
 
@@ -198,10 +215,10 @@ view model =
     div [ class "bg", style "background-image" ("url(img/" ++ background.file ++ ")") ]
         [ div [ class "container" ]
             [ settingBtn
-            , drawer model
+            , lazy drawer model
             , timebar model
-            , searchbar model
-            , searchSelect model
+            , lazy searchbar model
+            , lazy searchSelect model
             ]
         ]
 
@@ -223,8 +240,11 @@ drawer model =
     in
     div [ class "drawer", style "transform" translate ]
         [ button [ class "drawer__close", onClick (OnDrawerOpen False) ] [ Icons.x ]
-        , h3 [] [ text "搜索引擎设置", button [ class "drawer-entry__add", onClick OnEntryAdd ] [ Icons.plusSquare ] ]
-        , div [] <| Array.toList <| Array.indexedMap renderEntry model.searchEngines
+        , h3 []
+            [ text "搜索引擎设置"
+            , button [ class "drawer-entry__add", onClick OnEntryAdd ] [ Icons.plusSquare ]
+            ]
+        , Keyed.node "ul" [] (Array.toList <| Array.indexedMap keyedLink model.searchEngines)
         , h3 [] [ text "关于" ]
         , div [ class "drawer-about" ]
             [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page" ] [ text "owlzou / start-page" ] ]
@@ -233,9 +253,14 @@ drawer model =
         ]
 
 
+keyedLink : Int -> Link -> ( String, Html Msg )
+keyedLink index link =
+    ( link.name, lazy (renderEntry index) link )
+
+
 renderEntry : Int -> Link -> Html Msg
 renderEntry index link =
-    div [ class "drawer-entry" ]
+    li [ class "drawer-entry" ]
         [ input [ placeholder "名称", type_ "text", value link.name, onInput (OnEntryInput index Name) ]
             []
         , input [ placeholder "搜索链接", type_ "text", value link.url, onInput (OnEntryInput index URL) ]
@@ -332,14 +357,19 @@ searchSelect : Model -> Html Msg
 searchSelect model =
     let
         render lks =
-            a [ onClick (OnSearchSelect lks), title lks.name ]
-                [ case lks.icon of
-                    Just icon ->
-                        Icons.svgIcon icon
+            li []
+                [ a [ onClick (OnSearchSelect lks), title lks.name ]
+                    [ case lks.icon of
+                        Just icon ->
+                            Icons.svgIcon icon
 
-                    Nothing ->
-                        text lks.name
+                        Nothing ->
+                            text lks.name
+                    ]
                 ]
+
+        keyedRender lks =
+            ( lks.name, lazy render lks )
 
         op =
             if model.searchSelectOpen then
@@ -348,9 +378,9 @@ searchSelect model =
             else
                 "0"
     in
-    div [ class "searchbar-list", style "opacity" op ] <|
-        Array.toList <|
-            Array.map render model.searchEngines
+    div [ class "searchbar-list", style "opacity" op ]
+        [ Keyed.node "ul" [] (Array.toList <| Array.map keyedRender model.searchEngines)
+        ]
 
 
 backgroundCredit : Html Msg

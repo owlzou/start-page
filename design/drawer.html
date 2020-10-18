@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
     <link rel="stylesheet" href="../dist/style.css" />
     <title>Start Page</title>
   </head>
@@ -21,13 +21,15 @@
       <div class="drawer">
         <button class="drawer__close"><i data-feather="x"></i></button>
         <h3>搜索引擎设置  <button class="drawer-entry__add"><i data-feather="plus-square"></i></button></h3>
-        <div class="drawer-entry">
+        <ul>
+        <li class="drawer-entry">
           <input type="text" placeholder="名称" />
           <input type="text" placeholder="搜索链接" />
           <span><i data-feather="github"></i></span>
           <input type="text" placeholder="SVG图标" />
            <button class="drawer-entry__add"><i data-feather="minus-square"></i></button>
-        </div>
+        </li>
+        </ul>
      
         <h3>关于</h3>
         <div class="drawer-about">
