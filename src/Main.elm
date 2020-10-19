@@ -198,7 +198,7 @@ port saveToStorage : E.Value -> Cmd msg
 
 view : Model -> Html Msg
 view model =
-    div [ class "bg", style "background-image" "url(img/chuttersnap-JH0wCegJsrQ-unsplash.webp)" ]
+    div [ class "bg", style "background-image" "url(img/chuttersnap-JH0wCegJsrQ-unsplash.jpg)" ]
         [ div [ class "container" ]
             [ settingBtn
             , lazy drawer model
