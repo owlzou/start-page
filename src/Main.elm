@@ -3,7 +3,7 @@ port module Main exposing (main)
 import Array exposing (Array)
 import Browser
 import Browser.Navigation exposing (back)
-import Data exposing (Link, SaveData, dataToJson, defaultSearchEngine, initLink, jsonToData)
+import Data exposing (Link, SaveData, dataToJson, defaultSearchEngine, initLink, jsonToData, trimLink)
 import Html exposing (Html, a, button, div, footer, h3, input, li, span, text, ul)
 import Html.Attributes exposing (class, href, placeholder, style, title, type_, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onFocus, onInput)
@@ -142,7 +142,7 @@ update msg model =
             ( { model | zone = zone }, Cmd.none )
 
         OnDrawerOpen b ->
-            ( { model | drawerOpen = b }, saveToStorage <| dataToJson model.searchEngines )
+            ( { model | drawerOpen = b, searchEngines = Array.map trimLink model.searchEngines }, saveToStorage <| dataToJson model.searchEngines )
 
         OnEntryInput index type_ str ->
             let
@@ -151,21 +151,14 @@ update msg model =
 
                 newItem =
                     case type_ of
-                        Name ->
-                            { item | name = String.trim str }
-
                         URL ->
-                            { item | url = String.trim str }
+                            { item | url = str }
+
+                        Name ->
+                            { item | name = str }
 
                         ICON ->
-                            { item
-                                | icon =
-                                    if String.length (String.trim str) == 0 then
-                                        Nothing
-
-                                    else
-                                        Just str
-                            }
+                            { item | icon = Just str }
             in
             ( { model | searchEngines = Array.set index newItem model.searchEngines }, Cmd.none )
 
@@ -205,7 +198,7 @@ port saveToStorage : E.Value -> Cmd msg
 
 view : Model -> Html Msg
 view model =
-    div [ class "bg", style "background-image" "url(img/chuttersnap-JH0wCegJsrQ-unsplash.jpg)" ]
+    div [ class "bg", style "background-image" "url(img/chuttersnap-JH0wCegJsrQ-unsplash.webp)" ]
         [ div [ class "container" ]
             [ settingBtn
             , lazy drawer model
@@ -250,7 +243,7 @@ drawer model =
 
 keyedLink : Int -> Link -> ( String, Html Msg )
 keyedLink index link =
-    ( link.name, lazy (renderEntry index) link )
+    ( String.fromInt index, lazy (renderEntry index) link )
 
 
 renderEntry : Int -> Link -> Html Msg
