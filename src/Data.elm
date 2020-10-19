@@ -80,3 +80,21 @@ jsonToData =
             D.map3 Link (D.field "name" D.string) (D.field "url" D.string) (D.maybe (D.field "icon" D.string))
     in
     D.map SaveData (D.field "search" (D.array linkDecoder))
+
+
+trimLink : Link -> Link
+trimLink link =
+    { name = String.trim link.name
+    , url = String.trim link.url
+    , icon =
+        case link.icon of
+            Nothing ->
+                Nothing
+
+            Just icon ->
+                if String.length (String.trim icon) == 0 then
+                    Nothing
+
+                else
+                    Just icon
+    }
