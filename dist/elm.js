@@ -7557,7 +7557,7 @@ var $author$project$Main$view = function (model) {
 		_List_fromArray(
 			[
 				$elm$html$Html$Attributes$class('bg'),
-				A2($elm$html$Html$Attributes$style, 'background-image', 'url(img/chuttersnap-JH0wCegJsrQ-unsplash.webp)')
+				A2($elm$html$Html$Attributes$style, 'background-image', 'url(img/chuttersnap-JH0wCegJsrQ-unsplash.jpg)')
 			]),
 		_List_fromArray(
 			[
