@@ -1,0 +1,130 @@
+/* -----------------抽屉----------------- */
+.drawer {
+    position absolute
+    top 0
+    right 0
+    bottom 0
+    left 0
+    transition transform 0.5s
+    z-index 900
+    background rgba(0, 0, 0, 0.8)
+    width 40rem
+    max-width 100%
+    overflow-y scroll
+
+    h3 {
+        display inline-block
+        position relative
+        padding 0
+        color var(--color-reverse)
+
+        &::before {
+            display inline-block
+            margin-right 1rem
+            background-color var(--color-reverse)
+            width 0.5rem
+            height 1.5rem
+            content ''
+        }
+    }
+
+    &__close {
+        position absolute
+        top 0
+        right 0
+        z-index 1000
+        margin 1rem
+        padding 0
+        color var(--color-reverse)
+    }
+
+    &-content {
+        padding 1rem 1rem
+    }
+
+    &-entry {
+        display grid
+        grid-template-rows 1fr 1fr
+        grid-template-columns 5rem 1fr 24px
+        padding 0.5rem 0
+        font-family 'Sans-serif'
+        gap 0.5rem
+
+        &__add, &__save, &__delete {
+            transition 0.5s
+            padding 0
+            height 24px
+            vertical-align bottom
+        }
+
+        &__delete {
+            color var(--color-reverse-sub)
+
+            &:hover {
+                color var(--color-reverse)
+            }
+        }
+
+        &__add, &__save {
+            margin 0 0.5rem
+            color var(--color-reverse)
+        }
+
+        input {
+            transition 0.5s
+            border none
+            border-bottom solid var(--color-reverse-sub) 2px
+            background-color transparent
+            padding 0.2rem 0.5rem
+            height 1.5rem
+            color var(--color-reverse)
+
+            &:focus {
+                border-bottom solid var(--color-reverse) 2px
+            }
+
+            &:nth-of-type(2) {
+                grid-column-start 2
+                grid-column-end 4
+            }
+
+            &:nth-of-type(3) {
+                color var(--color-reverse-sub)
+            }
+        }
+
+        > svg {
+            margin 0.2rem auto
+            color var(--color-reverse)
+        }
+    }
+
+    /* -----------------落款----------------- */
+    &-about {
+        margin 0.5rem 0
+        color var(--color-reverse)
+
+        a {
+            color var(--color-reverse)
+        }
+
+        &__repo {
+            display flex
+            align-items center
+            transition 0.5s
+            margin-bottom 1rem
+            border solid var(--color-reverse-sub) 2px
+            padding 0.5rem
+            width max-content
+            color var(--color-reverse)
+
+            svg {
+                margin-right 0.5rem
+            }
+
+            &:hover {
+                border solid var(--color-reverse) 2px
+            }
+        }
+    }
+}

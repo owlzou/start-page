@@ -68,7 +68,12 @@ dataToJson : Array Link -> E.Value
 dataToJson arr =
     let
         linkToJson link =
-            E.object [ ( "name", E.string link.name ), ( "url", E.string link.url ), ( "icon", E.string <| Maybe.withDefault "" link.icon ) ]
+            case link.icon of
+                Just icon ->
+                    E.object [ ( "name", E.string link.name ), ( "url", E.string link.url ), ( "icon", E.string icon ) ]
+
+                Nothing ->
+                    E.object [ ( "name", E.string link.name ), ( "url", E.string link.url ) ]
     in
     E.object [ ( "search", E.array linkToJson arr ) ]
 

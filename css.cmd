@@ -1,0 +1,1 @@
+ stylus src/css/main.styl -o dist/style.css --compress

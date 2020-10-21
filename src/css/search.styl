@@ -1,0 +1,98 @@
+/* -----------------搜索栏----------------- */
+.searchbar {
+    display flex
+    flex-wrap nowrap
+    align-items center
+    transition 0.5s
+    border-radius var(--search-border-radius)
+    background #fff
+
+    &-wrap {
+        margin 0
+        padding 0.5rem 1rem
+    }
+
+    &__select {
+        display inline-block
+        flex-shrink 0
+        border-radius var(--search-border-radius) 0 0 var(--search-border-radius)
+        cursor pointer
+        padding var(--search-padding)
+        padding-right 0
+        padding-left var(--search-border-radius)
+        height var(--search-font)
+        color var(--search-engine-color)
+        font-family sans-serif
+
+        svg {
+            position relative
+            top -2px
+            color var(--search-engine-color)
+        }
+    }
+
+    &__input {
+        border none
+        background-color transparent
+        padding var(--search-padding)
+        width 100%
+        height var(--search-font)
+        font-size 1rem
+    }
+
+    &__btn {
+        flex-shrink 0
+        border none
+        cursor pointer
+        padding var(--search-padding)
+        padding-right var(--search-border-radius)
+        height calc(var(--search-font) + 2 * var(--search-padding))
+        font-size var(--search-font)
+
+        svg {
+            position relative
+            top -2px
+            color var(--search-engine-color)
+        }
+    }
+
+    &-list {
+        position relative
+        transition 0.5s
+        margin 0 1rem
+        border-radius var(--search-border-radius)
+        background var(--color-blackbg)
+        padding var(--search-padding) var(--search-border-radius)
+        color #fff
+        font-family sans-serif
+
+        &::before {
+            position absolute
+            top -0.7rem
+            border-width 0 var(--search-tri) var(--search-tri) var(--search-tri)
+            border-style solid
+            border-color transparent transparent var(--color-blackbg) transparent
+            width 0
+            height 0
+            content ''
+        }
+
+        ul {
+            display grid
+            width 100%
+            gap 1rem
+        }
+
+        li {
+            min-width 24px
+            height 24px
+
+            a {
+                display inline-block
+                transition 0.3s
+                cursor pointer
+                min-height 24px
+            }
+        }
+    }
+}
