@@ -48,6 +48,7 @@ type alias Model =
     , scrollTimeStep : Float
     , scrolling : Bool
     , page : Page
+    , saveData : Bool
     }
 
 
@@ -55,7 +56,7 @@ init : E.Value -> ( Model, Cmd Msg )
 init val =
     case D.decodeValue jsonToData val of
         Ok v ->
-            ( { initModel | searchEngines = v.search }, Task.perform AdjustTimeZone Time.here )
+            ( { initModel | searchEngines = v.search, navs = v.navs }, Task.perform AdjustTimeZone Time.here )
 
         Err _ ->
             ( initModel, Task.perform AdjustTimeZone Time.here )
@@ -97,6 +98,9 @@ initModel =
     , scrollTimeStep = 50.0
     , scrolling = False
     , page = Search
+
+    -- 设置
+    , saveData = False
     }
 
 
@@ -110,12 +114,17 @@ type Msg
     | OnSearchSelect Link
     | OnSearchInput String
     | OnSearch
+    | DeleteInput
+      -- 时间
     | OnTick Time.Posix
     | AdjustTimeZone Time.Zone
+      -- 抽屉
     | OnDrawerOpen Bool
-    | OnEntryInput Int EntryInput String
-    | OnEntryAdd
-    | OnEntryRemove Int
+    | OnEntryInput Page Int EntryInput String
+    | OnEntryAdd Page
+    | OnEntryRemove Page Int
+    | SwitchSaveOption
+      -- 滚动
     | ChangePage Page
     | GetViewportHeight Dom.Viewport Page
     | Scroll Time.Posix
@@ -171,6 +180,9 @@ update msg model =
               searchUrl |> newWindow
             )
 
+        DeleteInput ->
+            ( { model | keyword = "" }, Cmd.none )
+
         OnTick newTime ->
             ( { model | time = newTime }, Cmd.none )
 
@@ -178,12 +190,23 @@ update msg model =
             ( { model | zone = zone }, Cmd.none )
 
         OnDrawerOpen b ->
-            ( { model | drawerOpen = b, searchEngines = Array.map trimLink model.searchEngines }, saveToStorage <| dataToJson model.searchEngines )
+            ( { model | drawerOpen = b, searchEngines = Array.map trimLink model.searchEngines, navs = Array.map trimLink model.navs }
+            , if model.saveData then
+                saveToStorage <| dataToJson model.searchEngines model.navs
 
-        OnEntryInput index type_ str ->
+              else
+                Cmd.none
+            )
+
+        OnEntryInput page index type_ str ->
             let
                 item =
-                    Maybe.withDefault initLink (Array.get index model.searchEngines)
+                    case page of
+                        Search ->
+                            Maybe.withDefault initLink (Array.get index model.searchEngines)
+
+                        Nav ->
+                            Maybe.withDefault initLink (Array.get index model.navs)
 
                 newItem =
                     case type_ of
@@ -196,13 +219,31 @@ update msg model =
                         ICON ->
                             { item | icon = Just str }
             in
-            ( { model | searchEngines = Array.set index newItem model.searchEngines }, Cmd.none )
+            case page of
+                Search ->
+                    ( { model | searchEngines = Array.set index newItem model.searchEngines }, Cmd.none )
 
-        OnEntryAdd ->
-            ( { model | searchEngines = Array.push initLink model.searchEngines }, Cmd.none )
+                Nav ->
+                    ( { model | navs = Array.set index newItem model.navs }, Cmd.none )
 
-        OnEntryRemove index ->
-            ( { model | searchEngines = removeFromArray index model.searchEngines }, Cmd.none )
+        OnEntryAdd page ->
+            case page of
+                Search ->
+                    ( { model | searchEngines = Array.push initLink model.searchEngines }, Cmd.none )
+
+                Nav ->
+                    ( { model | navs = Array.push initLink model.navs }, Cmd.none )
+
+        OnEntryRemove page index ->
+            case page of
+                Search ->
+                    ( { model | searchEngines = removeFromArray index model.searchEngines }, Cmd.none )
+
+                Nav ->
+                    ( { model | navs = removeFromArray index model.navs }, Cmd.none )
+
+        SwitchSaveOption ->
+            ( { model | saveData = not model.saveData }, Cmd.none )
 
         ChangePage page ->
             ( { model | page = page }, Task.perform (\i -> GetViewportHeight i page) Dom.getViewport )
@@ -333,15 +374,36 @@ drawer model =
 
             else
                 "translateX(-100%)"
+
+        checkbox =
+            if model.saveData then
+                Icons.checkSquare
+
+            else
+                Icons.square
     in
     div [ class "drawer", style "transform" translate ]
         [ button [ class "drawer__close", onClick (OnDrawerOpen False) ] [ Icons.x ]
         , div [ class "drawer-content" ]
-            [ h3 []
+            [ -- 设置
+              h3 [] [ text "存储" ]
+            , div [ class "drawer-save" ] [ button [ onClick SwitchSaveOption ] [ checkbox ], text "将设置保存在 localStorage" ]
+
+            --搜索
+            , h3 []
                 [ text "搜索引擎设置"
-                , button [ class "drawer-entry__add", onClick OnEntryAdd ] [ Icons.plusSquare ]
+                , button [ class "drawer-entry__add", onClick (OnEntryAdd Search) ] [ Icons.plusSquare ]
                 ]
-            , Keyed.node "ul" [] (Array.toList <| Array.indexedMap keyedLink model.searchEngines)
+            , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Search) model.searchEngines)
+
+            -- 导航
+            , h3 []
+                [ text "导航设置"
+                , button [ class "drawer-entry__add", onClick (OnEntryAdd Nav) ] [ Icons.plusSquare ]
+                ]
+            , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Nav) model.navs)
+
+            --
             , h3 [] [ text "关于" ]
             , div [ class "drawer-about" ]
                 [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page", target "_blank" ] [ text "owlzou / start-page" ] ]
@@ -351,17 +413,17 @@ drawer model =
         ]
 
 
-keyedLink : Int -> Link -> ( String, Html Msg )
-keyedLink index link =
-    ( String.fromInt index, lazy (renderEntry index) link )
+keyedLink : Page -> Int -> Link -> ( String, Html Msg )
+keyedLink page index link =
+    ( String.fromInt index, lazy (renderEntry page index) link )
 
 
-renderEntry : Int -> Link -> Html Msg
-renderEntry index link =
+renderEntry : Page -> Int -> Link -> Html Msg
+renderEntry page index link =
     li [ class "drawer-entry" ]
-        [ input [ placeholder "名称", type_ "text", value link.name, onInput (OnEntryInput index Name) ]
+        [ input [ placeholder "名称", type_ "text", value link.name, onInput (OnEntryInput page index Name) ]
             []
-        , input [ placeholder "搜索链接", type_ "text", value link.url, onInput (OnEntryInput index URL) ]
+        , input [ placeholder "搜索链接", type_ "text", value link.url, onInput (OnEntryInput page index URL) ]
             []
         , case link.icon of
             Just icon ->
@@ -369,9 +431,9 @@ renderEntry index link =
 
             Nothing ->
                 span [] []
-        , input [ placeholder "SVG 图标 Path", type_ "text", value <| Maybe.withDefault "" link.icon, onInput (OnEntryInput index ICON) ]
+        , input [ placeholder "SVG 图标 Path", type_ "text", value <| Maybe.withDefault "" link.icon, onInput (OnEntryInput page index ICON) ]
             []
-        , button [ class "drawer-entry__delete", onClick (OnEntryRemove index) ] [ Icons.minusSquare ]
+        , button [ class "drawer-entry__delete", onClick (OnEntryRemove page index) ] [ Icons.minusSquare ]
         ]
 
 
@@ -447,8 +509,12 @@ searchbar model =
                 , onEnter OnSearch
                 ]
                 []
-            , button [ class "searchbar__btn", onClick OnSearch ]
-                [ Icons.search ]
+            , if String.length model.keyword > 0 then
+                button [ class "searchbar__delete", onClick DeleteInput ] [ Icons.delete ]
+
+              else
+                span [] []
+            , button [ class "searchbar__btn", onClick OnSearch ] [ Icons.search ]
             ]
         ]
 
@@ -489,7 +555,7 @@ nav model =
         render lks =
             case lks.icon of
                 Just icon ->
-                    li [] [ Icons.svgIcon icon, a [ href lks.url, target "_blank" ] [ text lks.name ] ]
+                    li [] [ a [ href lks.url, target "_blank" ] [ Icons.svgIcon icon, text lks.name ] ]
 
                 Nothing ->
                     li [] [ a [ href lks.url, target "_blank" ] [ text lks.name ] ]
