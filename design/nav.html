@@ -28,12 +28,23 @@
           <div class="timebar__week">F r i d a y</div>
         </div>
         <!-- 搜索框 -->
+        <div class="nav">
+          <ul>
+            <li><i data-feather="code"></i><span>Watermark+1</span></li>
+            <li><span>Text Toolbox</span></li>
+          </ul>
         </div>
+      </div>
       <!-- 上拉箭头 -->
-      <a class="button-arrow"><i data-feather="chevrons-up"></i></a>
+      <a class="button-arrow to-search"><i data-feather="chevrons-up"></i></a>
     </div>
   </body>
   <script>
     feather.replace();
+    setTimeout(
+      () =>
+        (document.getElementsByClassName("nav")[0].className = "nav nav-show"),
+      3000
+    );
   </script>
 </html>

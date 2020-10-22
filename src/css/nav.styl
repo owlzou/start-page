@@ -1,0 +1,43 @@
+.page-nav {
+    bottom -300px
+}
+
+.nav {
+    padding 0.5rem 1rem
+
+    ul {
+        display grid
+        width 100%
+        gap 1rem
+    }
+
+    li {
+        display inline-block
+        color #fff
+        background rgba(0, 0, 0, 0.5)
+        padding 0.5rem
+        cursor pointer
+        transition 0.2s
+        display flex
+        align-items center
+        justify-content center
+        user-select none
+
+        svg {
+            margin-right 10px
+        }
+
+        &:hover {
+            background #000
+        }
+
+        &:active {
+            background #888
+        }
+
+        a {
+            color #fff
+            text-decoration none
+        }
+    }
+}
