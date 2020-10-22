@@ -1,6 +1,7 @@
 @import 'drawer.styl'
 @import 'search.styl'
-@import 'timebar.styl'
+@import 'media.styl'
+@import 'nav.styl'
 
 :root {
     --container-width 40rem
@@ -17,6 +18,7 @@
 
 body {
     margin 0
+    overflow-y hidden
 }
 
 button {
@@ -35,7 +37,7 @@ li {
 }
 
 .bg {
-    position absolute
+    position fixed
     top 0
     bottom 0
     margin 0
@@ -45,13 +47,13 @@ li {
 
 .container {
     margin 0 auto
-    padding-top 5%
+    position relative
     max-width var(--container-width)
 }
 
 /* -----------------设置按钮----------------- */
 .gear {
-    position absolute
+    position fixed
     top 0
     left 0
     margin 1rem
@@ -65,6 +67,15 @@ li {
     }
 }
 
+.page {
+    height 100vh
+    position relative
+}
+
+.main {
+    padding-top 20rem
+}
+
 /* -----------------下拉箭头----------------- */
 .button-arrow {
     position absolute
@@ -74,17 +85,22 @@ li {
     margin-left 50%
     cursor pointer
     opacity 0.5
-    transition 0.5s
+    transition color 0.5s
 
     svg {
         width 40px
         height @width
     }
+}
 
-    &:hover {
-        opacity 1
-        animation tonav 1s ease-out infinite
-    }
+.to-nav:hover {
+    opacity 1
+    animation tonav 1s ease-out infinite
+}
+
+.to-search:hover {
+    opacity 1
+    animation tosearch 1s ease-out infinite
 }
 
 /* -----------------动画----------------- */
@@ -117,5 +133,41 @@ li {
 
     100% {
         bottom 1rem
+    }
+}
+
+@keyframes tosearch {
+    0% {
+        bottom 1rem
+    }
+
+    100% {
+        bottom 2rem
+    }
+}
+
+/* -----------------时间----------------- */
+.timebar {
+    padding 1rem
+    margin-top 5rem
+    width 17%
+    min-width 15rem
+    color var(--color-reverse)
+    font-size 1rem
+    user-select none
+    position fixed
+    margin-left 50%
+    transform translateX(-50%)
+
+    &__time, &__date, &__week {
+        width 100%
+        text-align justify
+        text-align-last justify
+        font-family serif
+    }
+
+    &__hr {
+        background var(--color-reverse)
+        height 2px
     }
 }

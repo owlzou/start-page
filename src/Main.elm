@@ -2,8 +2,9 @@ port module Main exposing (main)
 
 import Array exposing (Array)
 import Browser
+import Browser.Dom as Dom
 import Browser.Navigation exposing (back)
-import Data exposing (Link, SaveData, dataToJson, defaultSearchEngine, initLink, jsonToData, trimLink)
+import Data exposing (Link, SaveData, dataToJson, defaultNav, defaultSearchEngine, initLink, jsonToData, trimLink)
 import Html exposing (Html, a, button, div, footer, h3, input, li, span, text, ul)
 import Html.Attributes exposing (class, href, placeholder, style, title, type_, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onFocus, onInput)
@@ -14,6 +15,7 @@ import Json.Decode as D
 import Json.Encode as E
 import Task
 import Time
+import Html.Attributes exposing (target)
 
 
 
@@ -32,12 +34,14 @@ main =
 type alias Model =
     { searchFocused : Bool
     , searchSelectOpen : Bool
-    , searchEngines : Array Link
-    , curSearchEngine : Link
     , keyword : String
+    , navs : Array Link
     , time : Time.Posix
     , zone : Time.Zone
     , drawerOpen : Bool
+    , searchEngines : Array Link
+    , curSearchEngine : Link
+    , viewportHeight : Float
     }
 
 
@@ -53,8 +57,20 @@ init val =
 
 initModel : Model
 initModel =
-    { searchFocused = False
+    { -- 搜索栏
+      searchFocused = False
     , searchSelectOpen = False
+    , keyword = ""
+
+    --导航
+    , navs = defaultNav
+
+    -- 时间
+    , time = Time.millisToPosix 0
+    , zone = Time.utc
+
+    --抽屉
+    , drawerOpen = False
     , searchEngines = defaultSearchEngine
     , curSearchEngine =
         case Array.get 0 defaultSearchEngine of
@@ -66,10 +82,9 @@ initModel =
                 , url = "https://www.baidu.com/baidu?wd=%s"
                 , icon = Nothing
                 }
-    , keyword = ""
-    , time = Time.millisToPosix 0
-    , zone = Time.utc
-    , drawerOpen = False
+
+    -- 滚动相关
+    , viewportHeight = 0
     }
 
 
@@ -89,12 +104,20 @@ type Msg
     | OnEntryInput Int EntryInput String
     | OnEntryAdd
     | OnEntryRemove Int
+    | ChangePage Page
+    | GetViewportHeight Dom.Viewport Page
+    | NoOp
 
 
 type EntryInput
     = Name
     | URL
     | ICON
+
+
+type Page
+    = Search
+    | Nav
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -168,6 +191,24 @@ update msg model =
         OnEntryRemove index ->
             ( { model | searchEngines = removeFromArray index model.searchEngines }, Cmd.none )
 
+        ChangePage page ->
+            ( model, Task.perform (\i -> GetViewportHeight i page) Dom.getViewport )
+
+        GetViewportHeight vp page ->
+            let
+                h =
+                    case page of
+                        Search ->
+                            0
+
+                        Nav ->
+                            vp.viewport.height
+            in
+            ( model, Task.perform (\_ -> NoOp) (Dom.setViewport 0 h) )
+
+        NoOp ->
+            ( model, Cmd.none )
+
 
 
 -- SUBSCRIPTIONS
@@ -198,14 +239,27 @@ port saveToStorage : E.Value -> Cmd msg
 
 view : Model -> Html Msg
 view model =
-    div [ class "bg", style "background-image" "url(img/chuttersnap-JH0wCegJsrQ-unsplash.jpg)" ]
-        [ div [ class "container" ]
-            [ settingBtn
-            , lazy drawer model
-            , timebar model
-            , lazy searchbar model
-            , lazy searchSelect model
+    div []
+        [ div [ class "bg", style "background-image" "url(img/chuttersnap-JH0wCegJsrQ-unsplash.jpg)" ] []
+        ,  timebar model 
+        , div [ class "container" ]
+            [ -- Page1
+              div [ class "page" ]
+                [ div [ class "main" ]
+                    [ lazy searchbar model
+                    , lazy searchSelect model
+                    ]
+                , span [ class "button-arrow to-nav", onClick (ChangePage Nav) ] [ Icons.chevronsDown ]
+                ]
+
+            -- Page2
+            , div [ class "page" ]
+                [ div [ class "main" ] [ lazy nav model ]
+                , span [ class "button-arrow to-nav", onClick (ChangePage Search) ] [ Icons.chevronsUp ]
+                ]
             ]
+        , settingBtn
+        , lazy drawer model
         ]
 
 
@@ -325,7 +379,7 @@ searchbar model =
                         Icons.svgIcon path
 
                     Nothing ->
-                        text model.curSearchEngine.name
+                        span [] [ text model.curSearchEngine.name ]
                 ]
             , input
                 [ class "searchbar__input"
@@ -354,7 +408,7 @@ searchSelect model =
                             Icons.svgIcon icon
 
                         Nothing ->
-                            text lks.name
+                            span [] [ text lks.name ]
                     ]
                 ]
 
@@ -371,6 +425,24 @@ searchSelect model =
     div [ class "searchbar-list", style "opacity" op ]
         [ Keyed.node "ul" [] (Array.toList <| Array.map keyedRender model.searchEngines)
         ]
+
+
+nav : Model -> Html msg
+nav model =
+    let
+        render lks =
+            case lks.icon of
+                Just icon ->
+                    li [] [ Icons.svgIcon icon, a [ href lks.url ] [ text lks.name ] ]
+
+                Nothing ->
+                    li [] [ a [ href lks.url, target "_blank"] [ text lks.name ] ]
+
+        keyedRender lks =
+            ( lks.name, lazy render lks )
+    in
+    div [ class "nav" ]
+        [ Keyed.node "ul" [] (Array.toList (Array.map keyedRender model.navs)) ]
 
 
 backgroundCredit : Html Msg

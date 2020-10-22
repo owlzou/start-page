@@ -64,6 +64,16 @@ defaultSearchEngine =
         ]
 
 
+defaultNav : Array Link
+defaultNav =
+    Array.fromList
+        [ { name = "Watermark+1"
+          , url = "https://owlzou.github.io/watermark1"
+          , icon = Nothing
+          }
+        ]
+
+
 dataToJson : Array Link -> E.Value
 dataToJson arr =
     let

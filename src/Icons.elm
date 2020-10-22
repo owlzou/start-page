@@ -1,8 +1,24 @@
-module Icons exposing (github, minusSquare, plusSquare, search, settings, svgIcon, x, xCircle,save)
+module Icons exposing (chevronsDown, chevronsUp, github, minusSquare, plusSquare, save, search, settings, svgIcon, x, xCircle)
 
 import Html exposing (Html)
 import Svg exposing (Svg, svg)
 import Svg.Attributes exposing (..)
+
+
+chevronsDown : Html msg
+chevronsDown =
+    svgFeatherIcon "chevrons-down"
+        [ Svg.polyline [ points "7 13 12 18 17 13" ] []
+        , Svg.polyline [ points "7 6 12 11 17 6" ] []
+        ]
+
+
+chevronsUp : Html msg
+chevronsUp =
+    svgFeatherIcon "chevrons-up"
+        [ Svg.polyline [ points "17 11 12 6 7 11" ] []
+        , Svg.polyline [ points "17 18 12 13 7 18" ] []
+        ]
 
 
 svgFeatherIcon : String -> List (Svg msg) -> Html msg
@@ -19,6 +35,7 @@ svgFeatherIcon className =
         , width "24"
         ]
 
+
 save : Html msg
 save =
     svgFeatherIcon "save"
@@ -26,6 +43,7 @@ save =
         , Svg.polyline [ points "17 21 17 13 7 13 7 21" ] []
         , Svg.polyline [ points "7 3 7 8 15 8" ] []
         ]
+
 
 github : Html msg
 github =
