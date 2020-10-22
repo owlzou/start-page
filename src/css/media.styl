@@ -2,16 +2,20 @@
 /* -----------------响应式----------------- */
 /* 小屏幕 */
 @media screen and (max-width 750px) {
-    .timebar__time {
-        font-size 3em
-    }
+    .timebar {
+        min-width 14rem
 
-    .timebar__date {
-        font-size 1.3em
-    }
+        &__time {
+            font-size 3em
+        }
 
-    .timebar__week {
-        font-size 1.8em
+        &__date {
+            font-size 1.3em
+        }
+
+        &__week {
+            font-size 1.8em
+        }
     }
 
     .searchbar-list ul {
@@ -21,20 +25,28 @@
     .nav ul {
         grid-template-columns 1fr 1fr
     }
+
+    .main {
+        padding-top 15rem
+    }
 }
 
 /* 大屏幕 */
 @media screen and (min-width 750px) {
-    .timebar__time {
-        font-size 5em
-    }
+    .timebar {
+        min-width 20rem
 
-    .timebar__date {
-        font-size 2em
-    }
+        &__time {
+            font-size 5em
+        }
 
-    .timebar__week {
-        font-size 3em
+        &__date {
+            font-size 2em
+        }
+
+        &__week {
+            font-size 3em
+        }
     }
 
     .searchbar-list ul {
@@ -43,5 +55,9 @@
 
     .nav ul {
         grid-template-columns 1fr 1fr 1fr 1fr
+    }
+
+    .main {
+        padding-top 20rem
     }
 }

@@ -6,16 +6,16 @@ import Browser.Dom as Dom
 import Browser.Navigation exposing (back)
 import Data exposing (Link, SaveData, dataToJson, defaultNav, defaultSearchEngine, initLink, jsonToData, trimLink)
 import Html exposing (Html, a, button, div, footer, h3, input, li, span, text, ul)
-import Html.Attributes exposing (class, href, placeholder, style, title, type_, value)
+import Html.Attributes exposing (class, href, placeholder, style, target, title, type_, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onFocus, onInput)
 import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy)
 import Icons
 import Json.Decode as D
 import Json.Encode as E
+import Svg exposing (path)
 import Task
 import Time
-import Html.Attributes exposing (target)
 
 
 
@@ -42,6 +42,12 @@ type alias Model =
     , searchEngines : Array Link
     , curSearchEngine : Link
     , viewportHeight : Float
+    , targetHeight : Float
+    , scrollStep : Float
+    , scrollTime : Float
+    , scrollTimeStep : Float
+    , scrolling : Bool
+    , page : Page
     }
 
 
@@ -85,6 +91,12 @@ initModel =
 
     -- 滚动相关
     , viewportHeight = 0
+    , targetHeight = 0
+    , scrollStep = 0
+    , scrollTime = 600.0
+    , scrollTimeStep = 50.0
+    , scrolling = False
+    , page = Search
     }
 
 
@@ -106,6 +118,7 @@ type Msg
     | OnEntryRemove Int
     | ChangePage Page
     | GetViewportHeight Dom.Viewport Page
+    | Scroll Time.Posix
     | NoOp
 
 
@@ -192,11 +205,11 @@ update msg model =
             ( { model | searchEngines = removeFromArray index model.searchEngines }, Cmd.none )
 
         ChangePage page ->
-            ( model, Task.perform (\i -> GetViewportHeight i page) Dom.getViewport )
+            ( { model | page = page }, Task.perform (\i -> GetViewportHeight i page) Dom.getViewport )
 
         GetViewportHeight vp page ->
             let
-                h =
+                th =
                     case page of
                         Search ->
                             0
@@ -204,7 +217,30 @@ update msg model =
                         Nav ->
                             vp.viewport.height
             in
-            ( model, Task.perform (\_ -> NoOp) (Dom.setViewport 0 h) )
+            ( { model
+                | scrolling = True
+                , targetHeight = th
+                , viewportHeight = vp.viewport.y
+                , scrollStep = (th - vp.viewport.y) / (model.scrollTime / model.scrollTimeStep)
+              }
+            , Cmd.none
+            )
+
+        Scroll _ ->
+            let
+                isScroll =
+                    if round (abs (model.viewportHeight - model.targetHeight)) <= 1 then
+                        False
+
+                    else
+                        True
+            in
+            ( { model
+                | viewportHeight = model.viewportHeight + model.scrollStep
+                , scrolling = isScroll
+              }
+            , Task.perform (\_ -> NoOp) (Dom.setViewport 0 (model.viewportHeight + model.scrollStep))
+            )
 
         NoOp ->
             ( model, Cmd.none )
@@ -216,8 +252,12 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Time.every 1000 OnTick
+subscriptions model =
+    if model.scrolling then
+        Sub.batch [ Time.every 1000 OnTick, Time.every model.scrollTimeStep Scroll ]
+
+    else
+        Time.every 1000 OnTick
 
 
 
@@ -239,23 +279,39 @@ port saveToStorage : E.Value -> Cmd msg
 
 view : Model -> Html Msg
 view model =
+    let
+        arrowVisible =
+            if model.scrolling then
+                "hidden"
+
+            else
+                "visible"
+
+        ( sclass, nclass ) =
+            case model.page of
+                Search ->
+                    ( "page show", "page hidden" )
+
+                Nav ->
+                    ( "page hidden", "page show" )
+    in
     div []
         [ div [ class "bg", style "background-image" "url(img/chuttersnap-JH0wCegJsrQ-unsplash.jpg)" ] []
-        ,  timebar model 
+        , timebar model
         , div [ class "container" ]
             [ -- Page1
-              div [ class "page" ]
+              div [ class sclass ]
                 [ div [ class "main" ]
                     [ lazy searchbar model
                     , lazy searchSelect model
                     ]
-                , span [ class "button-arrow to-nav", onClick (ChangePage Nav) ] [ Icons.chevronsDown ]
+                , span [ class "button-arrow to-nav", onClick (ChangePage Nav), style "visibility" arrowVisible ] [ Icons.chevronsDown ]
                 ]
 
             -- Page2
-            , div [ class "page" ]
+            , div [ class nclass ]
                 [ div [ class "main" ] [ lazy nav model ]
-                , span [ class "button-arrow to-nav", onClick (ChangePage Search) ] [ Icons.chevronsUp ]
+                , span [ class "button-arrow to-nav", onClick (ChangePage Search), style "visibility" arrowVisible ] [ Icons.chevronsUp ]
                 ]
             ]
         , settingBtn
@@ -288,7 +344,7 @@ drawer model =
             , Keyed.node "ul" [] (Array.toList <| Array.indexedMap keyedLink model.searchEngines)
             , h3 [] [ text "关于" ]
             , div [ class "drawer-about" ]
-                [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page" ] [ text "owlzou / start-page" ] ]
+                [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page", target "_blank" ] [ text "owlzou / start-page" ] ]
                 , backgroundCredit
                 ]
             ]
@@ -433,10 +489,10 @@ nav model =
         render lks =
             case lks.icon of
                 Just icon ->
-                    li [] [ Icons.svgIcon icon, a [ href lks.url ] [ text lks.name ] ]
+                    li [] [ Icons.svgIcon icon, a [ href lks.url, target "_blank" ] [ text lks.name ] ]
 
                 Nothing ->
-                    li [] [ a [ href lks.url, target "_blank"] [ text lks.name ] ]
+                    li [] [ a [ href lks.url, target "_blank" ] [ text lks.name ] ]
 
         keyedRender lks =
             ( lks.name, lazy render lks )
@@ -450,10 +506,10 @@ backgroundCredit =
     footer []
         [ span []
             [ text "Photo by "
-            , a [ href "https://unsplash.com/@chuttersnap?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" ]
+            , a [ href "https://unsplash.com/@chuttersnap?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText", target "_blank" ]
                 [ text "CHUTTERSNAP" ]
             , text " on "
-            , a [ href "https://unsplash.com/s/photos/cityscape?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText" ]
+            , a [ href "https://unsplash.com/s/photos/cityscape?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText", target "_blank" ]
                 [ text "Unsplash" ]
             ]
         ]
