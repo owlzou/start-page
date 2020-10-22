@@ -1,8 +1,44 @@
-module Icons exposing (chevronsDown, chevronsUp, github, minusSquare, plusSquare, save, search, settings, svgIcon, x, xCircle)
+module Icons exposing
+    ( checkSquare
+    , chevronsDown
+    , chevronsUp
+    , delete
+    , github
+    , minusSquare
+    , plusSquare
+    , search
+    , settings
+    , square
+    , svgIcon
+    , x
+    )
 
 import Html exposing (Html)
 import Svg exposing (Svg, svg)
 import Svg.Attributes exposing (..)
+
+
+svgFeatherIcon : String -> List (Svg msg) -> Html msg
+svgFeatherIcon className =
+    svg
+        [ class <| "feather feather-" ++ className
+        , fill "none"
+        , height "24"
+        , stroke "currentColor"
+        , strokeLinecap "round"
+        , strokeLinejoin "round"
+        , strokeWidth "2"
+        , viewBox "0 0 24 24"
+        , width "24"
+        ]
+
+
+checkSquare : Html msg
+checkSquare =
+    svgFeatherIcon "check-square"
+        [ Svg.polyline [ points "9 11 12 14 22 4" ] []
+        , Svg.path [ d "M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" ] []
+        ]
 
 
 chevronsDown : Html msg
@@ -21,27 +57,12 @@ chevronsUp =
         ]
 
 
-svgFeatherIcon : String -> List (Svg msg) -> Html msg
-svgFeatherIcon className =
-    svg
-        [ class <| "feather feather-" ++ className
-        , fill "none"
-        , height "24"
-        , stroke "currentColor"
-        , strokeLinecap "round"
-        , strokeLinejoin "round"
-        , strokeWidth "2"
-        , viewBox "0 0 24 24"
-        , width "24"
-        ]
-
-
-save : Html msg
-save =
-    svgFeatherIcon "save"
-        [ Svg.path [ d "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" ] []
-        , Svg.polyline [ points "17 21 17 13 7 13 7 21" ] []
-        , Svg.polyline [ points "7 3 7 8 15 8" ] []
+delete : Html msg
+delete =
+    svgFeatherIcon "delete"
+        [ Svg.path [ d "M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" ] []
+        , Svg.line [ x1 "18", y1 "9", x2 "12", y2 "15" ] []
+        , Svg.line [ x1 "12", y1 "9", x2 "18", y2 "15" ] []
         ]
 
 
@@ -85,20 +106,18 @@ settings =
         ]
 
 
+square : Html msg
+square =
+    svgFeatherIcon "square"
+        [ Svg.rect [ Svg.Attributes.x "3", y "3", width "18", height "18", rx "2", ry "2" ] []
+        ]
+
+
 x : Html msg
 x =
     svgFeatherIcon "x"
         [ Svg.line [ x1 "18", y1 "6", x2 "6", y2 "18" ] []
         , Svg.line [ x1 "6", y1 "6", x2 "18", y2 "18" ] []
-        ]
-
-
-xCircle : Html msg
-xCircle =
-    svgFeatherIcon "x-circle"
-        [ Svg.circle [ cx "12", cy "12", r "10" ] []
-        , Svg.line [ x1 "15", y1 "9", x2 "9", y2 "15" ] []
-        , Svg.line [ x1 "9", y1 "9", x2 "15", y2 "15" ] []
         ]
 
 

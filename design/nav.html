@@ -14,37 +14,43 @@
         background-image: url('../dist/img/chuttersnap-JH0wCegJsrQ-unsplash.jpg');
       "
     >
+      <!-- 时间 -->
+      <!-- 数字中间必须空格不然不能分散对齐 -->
+      <div class="timebar">
+        <div class="timebar__time">1 9 : 2 2</div>
+        <div class="timebar__hr"></div>
+        <div class="timebar__date">2 0 2 0 / 1 0 / 1 6</div>
+        <div class="timebar__hr"></div>
+        <div class="timebar__week">F r i d a y</div>
+      </div>
       <button class="gear">
         <i data-feather="settings"></i>
       </button>
       <div class="container">
-        <!-- 时间 -->
-        <!-- 数字中间必须空格不然不能分散对齐 -->
-        <div class="timebar">
-          <div class="timebar__time">1 9 : 2 2</div>
-          <div class="timebar__hr"></div>
-          <div class="timebar__date">2 0 2 0 / 1 0 / 1 6</div>
-          <div class="timebar__hr"></div>
-          <div class="timebar__week">F r i d a y</div>
-        </div>
-        <!-- 搜索框 -->
-        <div class="nav">
-          <ul>
-            <li><i data-feather="code"></i><span>Watermark+1</span></li>
-            <li><span>Text Toolbox</span></li>
-          </ul>
+        <div class="page">
+          <div class="main">
+            <!-- 搜索框 -->
+            <div class="nav">
+              <ul>
+                <li>
+                  <a href=""
+                    ><i data-feather="code"></i><span>Watermark+1</span></a
+                  >
+                </li>
+                <li>
+                  <a href=""><span>Text Toolbox</span></a>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
+
       <!-- 上拉箭头 -->
       <a class="button-arrow to-search"><i data-feather="chevrons-up"></i></a>
     </div>
   </body>
   <script>
     feather.replace();
-    setTimeout(
-      () =>
-        (document.getElementsByClassName("nav")[0].className = "nav nav-show"),
-      3000
-    );
   </script>
 </html>
