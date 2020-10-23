@@ -56,7 +56,7 @@ init : E.Value -> ( Model, Cmd Msg )
 init val =
     case D.decodeValue jsonToData val of
         Ok v ->
-            ( { initModel | searchEngines = v.search, navs = v.navs }, Task.perform AdjustTimeZone Time.here )
+            ( { initModel | searchEngines = v.search, navs = v.navs, saveData = True }, Task.perform AdjustTimeZone Time.here )
 
         Err _ ->
             ( initModel, Task.perform AdjustTimeZone Time.here )
@@ -385,29 +385,34 @@ drawer model =
     div [ class "drawer", style "transform" translate ]
         [ button [ class "drawer__close", onClick (OnDrawerOpen False) ] [ Icons.x ]
         , div [ class "drawer-content" ]
-            [ -- 设置
-              h3 [] [ text "存储" ]
-            , div [ class "drawer-save" ] [ button [ onClick SwitchSaveOption ] [ checkbox ], text "将设置保存在 localStorage" ]
+            [ div [ style "padding " "1rem" ]
+                [ -- 设置
+                  h3 [] [ text "存储" ]
+                , div [ class "drawer-save" ] [ button [ onClick SwitchSaveOption ] [ checkbox ], text "将设置保存在 localStorage" ]
 
-            --搜索
-            , h3 []
-                [ text "搜索引擎设置"
-                , button [ class "drawer-entry__add", onClick (OnEntryAdd Search) ] [ Icons.plusSquare ]
-                ]
-            , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Search) model.searchEngines)
+                --搜索
+                , h3 []
+                    [ text "搜索引擎设置"
+                    , button [ class "drawer-entry__add", onClick (OnEntryAdd Search) ] [ Icons.plusSquare ]
+                    ]
+                , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Search) model.searchEngines)
 
-            -- 导航
-            , h3 []
-                [ text "导航设置"
-                , button [ class "drawer-entry__add", onClick (OnEntryAdd Nav) ] [ Icons.plusSquare ]
-                ]
-            , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Nav) model.navs)
+                -- 导航
+                , h3 []
+                    [ text "导航设置"
+                    , button [ class "drawer-entry__add", onClick (OnEntryAdd Nav) ] [ Icons.plusSquare ]
+                    ]
+                , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Nav) model.navs)
 
-            --
-            , h3 [] [ text "关于" ]
-            , div [ class "drawer-about" ]
-                [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page", target "_blank" ] [ text "owlzou / start-page" ] ]
-                , backgroundCredit
+                -- 关于
+                , h3 [] [ text "关于" ]
+                , div [ class "drawer-about" ]
+                    [ div [ style "display" "flex"]
+                        [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page", target "_blank" ] [ text "owlzou / start-page" ] ]
+                        , div [ class "drawer-about__repo" ] [ Icons.gitee, a [ href "https://gitee.com/owlzou/start-page", target "_blank" ] [ text "owlzou / start-page" ] ]
+                        ]
+                    , backgroundCredit
+                    ]
                 ]
             ]
         ]
@@ -423,7 +428,7 @@ renderEntry page index link =
     li [ class "drawer-entry" ]
         [ input [ placeholder "名称", type_ "text", value link.name, onInput (OnEntryInput page index Name) ]
             []
-        , input [ placeholder "搜索链接", type_ "text", value link.url, onInput (OnEntryInput page index URL) ]
+        , input [ placeholder "链接", type_ "text", value link.url, onInput (OnEntryInput page index URL) ]
             []
         , case link.icon of
             Just icon ->
