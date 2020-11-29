@@ -1,3 +1,4 @@
+document.getElementById("app").scrollTop = 0;
 var data = localStorage.getItem("data");
 
 var app = Elm.Main.init({
