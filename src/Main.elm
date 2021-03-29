@@ -3,9 +3,8 @@ port module Main exposing (main)
 import Array exposing (Array)
 import Browser
 import Browser.Dom as Dom
-import Browser.Navigation exposing (back)
-import Data exposing (Link, SaveData, dataToJson, defaultNav, defaultSearchEngine, initLink, jsonToData, trimLink)
-import Html exposing (Html, a, button, div, footer, h3, input, li, span, text, ul)
+import Data exposing (Link, dataToJson, defaultNav, defaultSearchEngine, initLink, jsonToData, trimLink)
+import Html exposing (Html, a, button, div, footer, h3, input, li, span, text)
 import Html.Attributes exposing (class, href, placeholder, style, target, title, type_, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onFocus, onInput)
 import Html.Keyed as Keyed
@@ -409,7 +408,6 @@ drawer model =
                 , div [ class "drawer-about" ]
                     [ div [ style "display" "flex"]
                         [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page", target "_blank" ] [ text "owlzou / start-page" ] ]
-                        , div [ class "drawer-about__repo" ] [ Icons.gitee, a [ href "https://gitee.com/owlzou/start-page", target "_blank" ] [ text "owlzou / start-page" ] ]
                         ]
                     , backgroundCredit
                     ]
