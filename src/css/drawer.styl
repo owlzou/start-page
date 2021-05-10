@@ -101,18 +101,6 @@
         }
 
         input {
-            transition 0.5s
-            border none
-            border-bottom solid var(--color-reverse-sub) 2px
-            background-color transparent
-            padding 0.2rem 0.5rem
-            height 1.5rem
-            color var(--color-reverse)
-
-            &:focus {
-                border-bottom solid var(--color-reverse) 2px
-            }
-
             &:nth-of-type(2) {
                 grid-column-start 2
                 grid-column-end 4
@@ -126,6 +114,29 @@
         > svg {
             margin 0.2rem auto
             color var(--color-reverse)
+        }
+    }
+
+    input {
+        transition 0.5s
+        border none
+        border-bottom solid var(--color-reverse-sub) 2px
+        background-color transparent
+        padding 0.2rem 0.5rem
+        height 1.5rem
+        color var(--color-reverse)
+
+        &:focus {
+            border-bottom solid var(--color-reverse) 2px
+        }
+    }
+
+    &-sync {
+        display flex
+        flex-direction column
+
+        input {
+            margin-bottom 0.5rem
         }
     }
 

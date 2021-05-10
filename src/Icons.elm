@@ -3,6 +3,7 @@ module Icons exposing
     , chevronsDown
     , chevronsUp
     , delete
+    , downloadCloud
     , github
     , minusSquare
     , plusSquare
@@ -10,6 +11,7 @@ module Icons exposing
     , settings
     , square
     , svgIcon
+    , uploadCloud
     , x
     )
 
@@ -119,6 +121,26 @@ x =
         [ Svg.line [ x1 "18", y1 "6", x2 "6", y2 "18" ] []
         , Svg.line [ x1 "6", y1 "6", x2 "18", y2 "18" ] []
         ]
+
+
+downloadCloud : Html msg
+downloadCloud =
+    svgFeatherIcon "download-cloud"
+        [ Svg.polyline [ points "8 17 12 21 16 17" ] []
+        , Svg.line [ x1 "12", y1 "12", x2 "12", y2 "21" ] []
+        , Svg.path [ d "M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29" ] []
+        ]
+
+
+uploadCloud : Html msg
+uploadCloud =
+    svgFeatherIcon "upload-cloud"
+        [ Svg.polyline [ points "16 16 12 12 8 16" ] []
+        , Svg.line [ x1 "12", y1 "12", x2 "12", y2 "21" ] []
+        , Svg.path [ d "M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" ] []
+        , Svg.polyline [ points "16 16 12 12 8 16" ] []
+        ]
+
 
 
 -- 将普通路径转换成svg

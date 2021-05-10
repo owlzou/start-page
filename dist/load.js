@@ -15,3 +15,7 @@ app.ports.newWindow.subscribe((msg) => {
 app.ports.saveToStorage.subscribe((msg) => {
   localStorage.setItem("data", JSON.stringify(msg));
 });
+
+app.ports.upload.subscribe(async (msg) => {});
+
+app.ports.download.subscribe(async (msg) => {});

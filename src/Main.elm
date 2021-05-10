@@ -3,12 +3,12 @@ port module Main exposing (main)
 import Array exposing (Array)
 import Browser
 import Browser.Dom as Dom
-import Data exposing (Link, dataToJson, defaultNav, defaultSearchEngine, initLink, jsonToData, trimLink)
+import Data exposing (Link, SaveData, defaultNav, defaultSearchEngine, initLink, jsonToData, trimLink)
 import Html exposing (Html, a, button, div, footer, h3, input, li, span, text)
 import Html.Attributes exposing (class, href, placeholder, style, target, title, type_, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onFocus, onInput)
 import Html.Keyed as Keyed
-import Html.Lazy exposing (lazy)
+import Html.Lazy exposing (lazy, lazy2, lazy3)
 import Icons
 import Json.Decode as D
 import Json.Encode as E
@@ -34,11 +34,9 @@ type alias Model =
     { searchFocused : Bool
     , searchSelectOpen : Bool
     , keyword : String
-    , navs : Array Link
     , time : Time.Posix
     , zone : Time.Zone
-    , drawerOpen : Bool
-    , searchEngines : Array Link
+    , drawer : Drawer
     , curSearchEngine : Link
     , viewportHeight : Float
     , targetHeight : Float
@@ -47,7 +45,28 @@ type alias Model =
     , scrollTimeStep : Float
     , scrolling : Bool
     , page : Page
+    , auth : Auth
+    }
+
+
+type alias Drawer =
+    { open : Bool
+    , searchEngines : Array Link
+    , navs : Array Link
     , saveData : Bool
+    }
+
+
+type alias Auth =
+    { server : String
+    , username : String
+    , password : String
+    }
+
+
+type alias SyncData =
+    { auth : Auth
+    , data : SaveData
     }
 
 
@@ -55,7 +74,11 @@ init : E.Value -> ( Model, Cmd Msg )
 init val =
     case D.decodeValue jsonToData val of
         Ok v ->
-            ( { initModel | searchEngines = v.search, navs = v.navs, saveData = True }, Task.perform AdjustTimeZone Time.here )
+            let
+                dr =
+                    { searchEngines = v.search, navs = v.navs, open = False, saveData = True }
+            in
+            ( { initModel | drawer = dr }, Task.perform AdjustTimeZone Time.here )
 
         Err _ ->
             ( initModel, Task.perform AdjustTimeZone Time.here )
@@ -69,15 +92,17 @@ initModel =
     , keyword = ""
 
     --导航
-    , navs = defaultNav
-
     -- 时间
     , time = Time.millisToPosix 0
     , zone = Time.utc
 
     --抽屉
-    , drawerOpen = False
-    , searchEngines = defaultSearchEngine
+    , drawer =
+        { open = False
+        , searchEngines = defaultSearchEngine
+        , navs = defaultNav
+        , saveData = False
+        }
     , curSearchEngine =
         case Array.get 0 defaultSearchEngine of
             Just link ->
@@ -97,9 +122,11 @@ initModel =
     , scrollTimeStep = 50.0
     , scrolling = False
     , page = Search
-
-    -- 设置
-    , saveData = False
+    , auth =
+        { server = ""
+        , username = ""
+        , password = ""
+        }
     }
 
 
@@ -123,10 +150,16 @@ type Msg
     | OnEntryAdd Page
     | OnEntryRemove Page Int
     | SwitchSaveOption
+    | OnAuthServerInput String
+    | OnAuthUserInput String
+    | OnAuthPasswordInput String
       -- 滚动
     | ChangePage Page
     | GetViewportHeight Dom.Viewport Page
     | Scroll Time.Posix
+    | Upload
+    | Download
+    | Reload SaveData
     | NoOp
 
 
@@ -189,9 +222,13 @@ update msg model =
             ( { model | zone = zone }, Cmd.none )
 
         OnDrawerOpen b ->
-            ( { model | drawerOpen = b, searchEngines = Array.map trimLink model.searchEngines, navs = Array.map trimLink model.navs }
-            , if model.saveData then
-                saveToStorage <| dataToJson model.searchEngines model.navs
+            let
+                drawer_ =
+                    { open = b, searchEngines = Array.map trimLink model.drawer.searchEngines, navs = Array.map trimLink model.drawer.navs, saveData = model.drawer.saveData }
+            in
+            ( { model | drawer = drawer_ }
+            , if model.drawer.saveData then
+                saveToStorage <| { search = model.drawer.searchEngines, navs = model.drawer.navs }
 
               else
                 Cmd.none
@@ -202,10 +239,10 @@ update msg model =
                 item =
                     case page of
                         Search ->
-                            Maybe.withDefault initLink (Array.get index model.searchEngines)
+                            Maybe.withDefault initLink (Array.get index model.drawer.searchEngines)
 
                         Nav ->
-                            Maybe.withDefault initLink (Array.get index model.navs)
+                            Maybe.withDefault initLink (Array.get index model.drawer.navs)
 
                 newItem =
                     case type_ of
@@ -217,32 +254,47 @@ update msg model =
 
                         ICON ->
                             { item | icon = Just str }
+
+                drawer_ =
+                    model.drawer
             in
             case page of
                 Search ->
-                    ( { model | searchEngines = Array.set index newItem model.searchEngines }, Cmd.none )
+                    ( { model | drawer = { drawer_ | searchEngines = Array.set index newItem drawer_.searchEngines } }, Cmd.none )
 
                 Nav ->
-                    ( { model | navs = Array.set index newItem model.navs }, Cmd.none )
+                    ( { model | drawer = { drawer_ | navs = Array.set index newItem drawer_.navs } }, Cmd.none )
 
         OnEntryAdd page ->
+            let
+                drawer_ =
+                    model.drawer
+            in
             case page of
                 Search ->
-                    ( { model | searchEngines = Array.push initLink model.searchEngines }, Cmd.none )
+                    ( { model | drawer = { drawer_ | searchEngines = Array.push initLink drawer_.searchEngines } }, Cmd.none )
 
                 Nav ->
-                    ( { model | navs = Array.push initLink model.navs }, Cmd.none )
+                    ( { model | drawer = { drawer_ | navs = Array.push initLink drawer_.navs } }, Cmd.none )
 
         OnEntryRemove page index ->
+            let
+                drawer_ =
+                    model.drawer
+            in
             case page of
                 Search ->
-                    ( { model | searchEngines = removeFromArray index model.searchEngines }, Cmd.none )
+                    ( { model | drawer = { drawer_ | searchEngines = removeFromArray index drawer_.searchEngines } }, Cmd.none )
 
                 Nav ->
-                    ( { model | navs = removeFromArray index model.navs }, Cmd.none )
+                    ( { model | drawer = { drawer_ | navs = removeFromArray index drawer_.navs } }, Cmd.none )
 
         SwitchSaveOption ->
-            ( { model | saveData = not model.saveData }, Cmd.none )
+            let
+                drawer_ =
+                    model.drawer
+            in
+            ( { model | drawer = { drawer_ | saveData = not drawer_.saveData } }, Cmd.none )
 
         ChangePage page ->
             ( { model | page = page }, Task.perform (\i -> GetViewportHeight i page) Dom.getViewport )
@@ -282,6 +334,40 @@ update msg model =
             , Task.perform (\_ -> NoOp) (Dom.setViewport 0 (model.viewportHeight + model.scrollStep))
             )
 
+        OnAuthServerInput str ->
+            let
+                auth_ =
+                    model.auth
+            in
+            ( { model | auth = { auth_ | server = str } }, Cmd.none )
+
+        OnAuthUserInput str ->
+            let
+                auth_ =
+                    model.auth
+            in
+            ( { model | auth = { auth_ | username = str } }, Cmd.none )
+
+        OnAuthPasswordInput str ->
+            let
+                auth_ =
+                    model.auth
+            in
+            ( { model | auth = { auth_ | password = str } }, Cmd.none )
+
+        Upload ->
+            ( model, upload { auth = model.auth, data = { search = model.drawer.searchEngines, navs = model.drawer.navs } } )
+
+        Download ->
+            ( model, download model.auth )
+
+        Reload data ->
+            let
+                dr =
+                    { searchEngines = data.search, navs = data.navs, open = model.drawer.open, saveData = model.drawer.saveData }
+            in
+            ( { initModel | drawer = dr }, Cmd.none )
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -294,10 +380,10 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     if model.scrolling then
-        Sub.batch [ Time.every 1000 OnTick, Time.every model.scrollTimeStep Scroll ]
+        Sub.batch [ Time.every 1000 OnTick, receiver Reload, Time.every model.scrollTimeStep Scroll ]
 
     else
-        Time.every 1000 OnTick
+        Sub.batch [ Time.every 1000 OnTick, receiver Reload ]
 
 
 
@@ -307,10 +393,16 @@ subscriptions model =
 port newWindow : String -> Cmd msg
 
 
-port receiver : (E.Value -> msg) -> Sub msg
+port receiver : (SaveData -> msg) -> Sub msg
 
 
-port saveToStorage : E.Value -> Cmd msg
+port saveToStorage : SaveData -> Cmd msg
+
+
+port upload : SyncData -> Cmd msg
+
+
+port download : Auth -> Cmd msg
 
 
 
@@ -342,20 +434,20 @@ view model =
             [ -- Page1
               div [ class sclass ]
                 [ div [ class "main" ]
-                    [ lazy searchbar model
-                    , lazy searchSelect model
+                    [ lazy3 searchbar model.curSearchEngine model.searchFocused model.keyword
+                    , lazy2 searchSelect model.drawer.searchEngines model.searchSelectOpen
                     ]
                 , span [ class "button-arrow to-nav", onClick (ChangePage Nav), style "visibility" arrowVisible ] [ Icons.chevronsDown ]
                 ]
 
             -- Page2
             , div [ class nclass ]
-                [ div [ class "main" ] [ lazy nav model ]
+                [ div [ class "main" ] [ lazy nav model.drawer.navs ]
                 , span [ class "button-arrow to-nav", onClick (ChangePage Search), style "visibility" arrowVisible ] [ Icons.chevronsUp ]
                 ]
             ]
         , settingBtn
-        , lazy drawer model
+        , lazy drawer model.drawer
         ]
 
 
@@ -364,18 +456,18 @@ settingBtn =
     button [ class "gear", onClick (OnDrawerOpen True) ] [ Icons.settings ]
 
 
-drawer : Model -> Html Msg
-drawer model =
+drawer : Drawer -> Html Msg
+drawer d =
     let
         translate =
-            if model.drawerOpen then
+            if d.open then
                 "translateX(0)"
 
             else
                 "translateX(-100%)"
 
         checkbox =
-            if model.saveData then
+            if d.saveData then
                 Icons.checkSquare
 
             else
@@ -394,19 +486,31 @@ drawer model =
                     [ text "搜索引擎设置"
                     , button [ class "drawer-entry__add", onClick (OnEntryAdd Search) ] [ Icons.plusSquare ]
                     ]
-                , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Search) model.searchEngines)
+                , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Search) d.searchEngines)
 
                 -- 导航
                 , h3 []
                     [ text "导航设置"
                     , button [ class "drawer-entry__add", onClick (OnEntryAdd Nav) ] [ Icons.plusSquare ]
                     ]
-                , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Nav) model.navs)
+                , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Nav) d.navs)
+
+                -- 同步
+           {-      , h3 []
+                    [ text "同步设置"
+                    , button [ class "drawer-entry__add", onClick Upload ] [ Icons.uploadCloud ]
+                    , button [ class "drawer-entry__add", onClick Download ] [ Icons.downloadCloud ]
+                    ]
+                , div [ class "drawer-sync" ]
+                    [ input [ placeholder "服务器地址", type_ "text", onInput OnAuthServerInput ] []
+                    , input [ placeholder "用户名", type_ "text", onInput OnAuthUserInput ] []
+                    , input [ placeholder "应用密码", type_ "text", onInput OnAuthPasswordInput ] []
+                    ] -}
 
                 -- 关于
                 , h3 [] [ text "关于" ]
                 , div [ class "drawer-about" ]
-                    [ div [ style "display" "flex"]
+                    [ div [ style "display" "flex" ]
                         [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page", target "_blank" ] [ text "owlzou / start-page" ] ]
                         ]
                     , backgroundCredit
@@ -482,11 +586,11 @@ timebar model =
         ]
 
 
-searchbar : Model -> Html Msg
-searchbar model =
+searchbar : Link -> Bool -> String -> Html Msg
+searchbar curSearchEngine searchFocused keyword =
     let
         op =
-            if model.searchFocused then
+            if searchFocused then
                 "1"
 
             else
@@ -495,24 +599,24 @@ searchbar model =
     div [ class "searchbar-wrap" ]
         [ div [ class "searchbar", style "opacity" op ]
             [ div [ class "searchbar__select", onClick OnSearchSelectOpen ]
-                [ case model.curSearchEngine.icon of
+                [ case curSearchEngine.icon of
                     Just path ->
                         Icons.svgIcon path
 
                     Nothing ->
-                        span [] [ text model.curSearchEngine.name ]
+                        span [] [ text curSearchEngine.name ]
                 ]
             , input
                 [ class "searchbar__input"
                 , type_ "text"
-                , value model.keyword
+                , value keyword
                 , onFocus (OnSearchbarFocus True)
                 , onBlur (OnSearchbarFocus False)
                 , onInput OnSearchInput
                 , onEnter OnSearch
                 ]
                 []
-            , if String.length model.keyword > 0 then
+            , if String.length keyword > 0 then
                 button [ class "searchbar__delete", onClick DeleteInput ] [ Icons.delete ]
 
               else
@@ -522,8 +626,8 @@ searchbar model =
         ]
 
 
-searchSelect : Model -> Html Msg
-searchSelect model =
+searchSelect : Array Link -> Bool -> Html Msg
+searchSelect searchEngines searchSelectOpen =
     let
         render lks =
             li []
@@ -541,19 +645,19 @@ searchSelect model =
             ( lks.name, lazy render lks )
 
         op =
-            if model.searchSelectOpen then
+            if searchSelectOpen then
                 "1"
 
             else
                 "0"
     in
     div [ class "searchbar-list", style "opacity" op ]
-        [ Keyed.node "ul" [] (Array.toList <| Array.map keyedRender model.searchEngines)
+        [ Keyed.node "ul" [] (Array.toList <| Array.map keyedRender searchEngines)
         ]
 
 
-nav : Model -> Html msg
-nav model =
+nav : Array Link -> Html msg
+nav navs =
     let
         render lks =
             case lks.icon of
@@ -567,7 +671,7 @@ nav model =
             ( lks.name, lazy render lks )
     in
     div [ class "nav" ]
-        [ Keyed.node "ul" [] (Array.toList (Array.map keyedRender model.navs)) ]
+        [ Keyed.node "ul" [] (Array.toList (Array.map keyedRender navs)) ]
 
 
 backgroundCredit : Html Msg
