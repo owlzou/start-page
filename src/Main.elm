@@ -3,7 +3,10 @@ port module Main exposing (main)
 import Array exposing (Array)
 import Browser
 import Browser.Dom as Dom
-import Data exposing (Link, SaveData, defaultNav, defaultSearchEngine, initLink, jsonToData, trimLink)
+import Data exposing (Link, SaveData, dataToString, defaultNav, defaultSearchEngine, initLink, jsonToData, trimLink)
+import File exposing (File)
+import File.Download as Download
+import File.Select as Select
 import Html exposing (Html, a, button, div, footer, h3, input, li, span, text)
 import Html.Attributes exposing (class, href, placeholder, style, target, title, type_, value)
 import Html.Events exposing (keyCode, on, onBlur, onClick, onFocus, onInput)
@@ -12,6 +15,7 @@ import Html.Lazy exposing (lazy, lazy2, lazy3)
 import Icons
 import Json.Decode as D
 import Json.Encode as E
+import Platform exposing (sendToApp)
 import Svg exposing (path)
 import Task
 import Time
@@ -45,7 +49,6 @@ type alias Model =
     , scrollTimeStep : Float
     , scrolling : Bool
     , page : Page
-    , auth : Auth
     }
 
 
@@ -54,19 +57,6 @@ type alias Drawer =
     , searchEngines : Array Link
     , navs : Array Link
     , saveData : Bool
-    }
-
-
-type alias Auth =
-    { server : String
-    , username : String
-    , password : String
-    }
-
-
-type alias SyncData =
-    { auth : Auth
-    , data : SaveData
     }
 
 
@@ -122,11 +112,6 @@ initModel =
     , scrollTimeStep = 50.0
     , scrolling = False
     , page = Search
-    , auth =
-        { server = ""
-        , username = ""
-        , password = ""
-        }
     }
 
 
@@ -150,16 +135,16 @@ type Msg
     | OnEntryAdd Page
     | OnEntryRemove Page Int
     | SwitchSaveOption
-    | OnAuthServerInput String
-    | OnAuthUserInput String
-    | OnAuthPasswordInput String
       -- 滚动
     | ChangePage Page
     | GetViewportHeight Dom.Viewport Page
     | Scroll Time.Posix
-    | Upload
-    | Download
-    | Reload SaveData
+      -- 导入导出
+    | Import
+    | JSONLoaded File
+    | Send String
+    | Export
+    | Reload E.Value
     | NoOp
 
 
@@ -334,42 +319,46 @@ update msg model =
             , Task.perform (\_ -> NoOp) (Dom.setViewport 0 (model.viewportHeight + model.scrollStep))
             )
 
-        OnAuthServerInput str ->
+        Import ->
+            ( model, importJSON )
+
+        Export ->
+            ( model, exportJSON { search = model.drawer.searchEngines, navs = model.drawer.navs } model.zone model.time )
+
+        JSONLoaded file ->
+            ( model, Task.perform Send (File.toString file) )
+
+        Send str ->
+            ( model, send str )
+
+        Reload val ->
             let
-                auth_ =
-                    model.auth
-            in
-            ( { model | auth = { auth_ | server = str } }, Cmd.none )
+                data : SaveData
+                data =
+                    case D.decodeValue jsonToData val of
+                        Ok d ->
+                            d
 
-        OnAuthUserInput str ->
-            let
-                auth_ =
-                    model.auth
-            in
-            ( { model | auth = { auth_ | username = str } }, Cmd.none )
+                        Err log ->
+                            { search = Array.fromList [ { name = "Error", url = "", icon = Nothing } ], navs = Array.empty }
 
-        OnAuthPasswordInput str ->
-            let
-                auth_ =
-                    model.auth
-            in
-            ( { model | auth = { auth_ | password = str } }, Cmd.none )
-
-        Upload ->
-            ( model, upload { auth = model.auth, data = { search = model.drawer.searchEngines, navs = model.drawer.navs } } )
-
-        Download ->
-            ( model, download model.auth )
-
-        Reload data ->
-            let
-                dr =
+                newDrawer =
                     { searchEngines = data.search, navs = data.navs, open = model.drawer.open, saveData = model.drawer.saveData }
             in
-            ( { initModel | drawer = dr }, Cmd.none )
+            ( { initModel | drawer = newDrawer }, Cmd.none )
 
         NoOp ->
             ( model, Cmd.none )
+
+
+exportJSON : SaveData -> Time.Zone -> Time.Posix -> Cmd msg
+exportJSON savedata zone time =
+    Download.string ("lunastart_" ++ getTimeString zone time ++ ".json") "application/json" (dataToString savedata)
+
+
+importJSON : Cmd Msg
+importJSON =
+    Select.file [ "application/json" ] JSONLoaded
 
 
 
@@ -393,19 +382,17 @@ subscriptions model =
 port newWindow : String -> Cmd msg
 
 
-port receiver : (SaveData -> msg) -> Sub msg
+port receiver : (E.Value -> msg) -> Sub msg
+
+
+port send : String -> Cmd msg
 
 
 port saveToStorage : SaveData -> Cmd msg
 
 
-port upload : SyncData -> Cmd msg
 
-
-port download : Auth -> Cmd msg
-
-
-
+-- port export : SaveData -> Cmd msg
 -- VIEW
 
 
@@ -480,6 +467,10 @@ drawer d =
                 [ -- 设置
                   h3 [] [ text "存储" ]
                 , div [ class "drawer-save" ] [ button [ onClick SwitchSaveOption ] [ checkbox ], text "将设置保存在 localStorage" ]
+                , div [ style "display" "flex" ]
+                    [ button [ onClick Import, class "l-button" ] [ Icons.upload, text "导入" ]
+                    , button [ onClick Export, class "l-button" ] [ Icons.download, text "导出" ]
+                    ]
 
                 --搜索
                 , h3 []
@@ -495,23 +486,11 @@ drawer d =
                     ]
                 , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Nav) d.navs)
 
-                -- 同步
-           {-      , h3 []
-                    [ text "同步设置"
-                    , button [ class "drawer-entry__add", onClick Upload ] [ Icons.uploadCloud ]
-                    , button [ class "drawer-entry__add", onClick Download ] [ Icons.downloadCloud ]
-                    ]
-                , div [ class "drawer-sync" ]
-                    [ input [ placeholder "服务器地址", type_ "text", onInput OnAuthServerInput ] []
-                    , input [ placeholder "用户名", type_ "text", onInput OnAuthUserInput ] []
-                    , input [ placeholder "应用密码", type_ "text", onInput OnAuthPasswordInput ] []
-                    ] -}
-
                 -- 关于
                 , h3 [] [ text "关于" ]
                 , div [ class "drawer-about" ]
                     [ div [ style "display" "flex" ]
-                        [ div [ class "drawer-about__repo" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page", target "_blank" ] [ text "owlzou / start-page" ] ]
+                        [ div [ class "drawer-about__repo", class "l-button" ] [ Icons.github, a [ href "https://github.com/owlzou/start-page", target "_blank" ] [ text "owlzou / start-page" ] ]
                         ]
                     , backgroundCredit
                     ]
@@ -547,13 +526,6 @@ renderEntry page index link =
 timebar : Model -> Html msg
 timebar model =
     let
-        fillNumber str =
-            if String.length str < 2 then
-                "0" ++ str
-
-            else
-                str
-
         hour =
             fillNumber <| String.fromInt (Time.toHour model.zone model.time)
 
@@ -788,3 +760,36 @@ toWeekDay weekday =
 
         Time.Sun ->
             "Sunday"
+
+
+fillNumber : String -> String
+fillNumber str =
+    if String.length str < 2 then
+        "0" ++ str
+
+    else
+        str
+
+
+getTimeString : Time.Zone -> Time.Posix -> String
+getTimeString zone time =
+    let
+        second =
+            fillNumber <| String.fromInt (Time.toSecond zone time)
+
+        hour =
+            fillNumber <| String.fromInt (Time.toHour zone time)
+
+        minute =
+            fillNumber <| String.fromInt (Time.toMinute zone time)
+
+        day =
+            fillNumber <| String.fromInt (Time.toDay zone time)
+
+        month =
+            toSimpleMonth (Time.toMonth zone time)
+
+        year =
+            String.fromInt (Time.toYear zone time)
+    in
+    year ++ month ++ day ++ hour ++ minute ++ second

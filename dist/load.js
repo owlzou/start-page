@@ -16,6 +16,21 @@ app.ports.saveToStorage.subscribe((msg) => {
   localStorage.setItem("data", JSON.stringify(msg));
 });
 
-app.ports.upload.subscribe(async (msg) => {});
+app.ports.send.subscribe((msg) => {
+  let data = JSON.parse(msg);
+  app.ports.receiver.send(data);
+});
 
-app.ports.download.subscribe(async (msg) => {});
+//下载备份
+/* app.ports.export.subscribe(async (msg) => {
+  let myDate = new Date();
+  let date_title = `${myDate.getFullYear()}${myDate.getMonth()}${myDate.getDate()}_${myDate.getHours()}${myDate.getMinutes()}${myDate.getSeconds()}`;
+  const blob = new Blob([JSON.stringify(msg)], { type: "text/plain" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  document.body.appendChild(a);
+  a.download = `lunastart_${date_title}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  a.remove();
+}); */

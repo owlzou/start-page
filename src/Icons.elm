@@ -3,7 +3,7 @@ module Icons exposing
     , chevronsDown
     , chevronsUp
     , delete
-    , downloadCloud
+    , download
     , github
     , minusSquare
     , plusSquare
@@ -11,7 +11,7 @@ module Icons exposing
     , settings
     , square
     , svgIcon
-    , uploadCloud
+    , upload
     , x
     )
 
@@ -123,22 +123,21 @@ x =
         ]
 
 
-downloadCloud : Html msg
-downloadCloud =
-    svgFeatherIcon "download-cloud"
-        [ Svg.polyline [ points "8 17 12 21 16 17" ] []
-        , Svg.line [ x1 "12", y1 "12", x2 "12", y2 "21" ] []
-        , Svg.path [ d "M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29" ] []
+download : Html msg
+download =
+    svgFeatherIcon "download"
+        [ Svg.path [ d "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" ] []
+        , Svg.polyline [ points "7 10 12 15 17 10" ] []
+        , Svg.line [ x1 "12", y1 "15", x2 "12", y2 "3" ] []
         ]
 
 
-uploadCloud : Html msg
-uploadCloud =
-    svgFeatherIcon "upload-cloud"
-        [ Svg.polyline [ points "16 16 12 12 8 16" ] []
-        , Svg.line [ x1 "12", y1 "12", x2 "12", y2 "21" ] []
-        , Svg.path [ d "M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" ] []
-        , Svg.polyline [ points "16 16 12 12 8 16" ] []
+upload : Html msg
+upload =
+    svgFeatherIcon "upload"
+        [ Svg.path [ d "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" ] []
+        , Svg.polyline [ points "17 8 12 3 7 8" ] []
+        , Svg.line [ x1 "12", y1 "3", x2 "12", y2 "15" ] []
         ]
 
 
