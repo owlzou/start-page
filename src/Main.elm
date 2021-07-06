@@ -415,8 +415,8 @@ view model =
                     ( "page hidden", "page show" )
     in
     div []
-        [ div [ class "bg", style "background-image" "url(img/chuttersnap-JH0wCegJsrQ-unsplash.jpg)" ] []
-        , timebar model
+        [ -- div [ class "bg" ] [Background.bg]
+          timebar model
         , div [ class "container" ]
             [ -- Page1
               div [ class sclass ]
@@ -650,12 +650,8 @@ backgroundCredit : Html Msg
 backgroundCredit =
     footer []
         [ span []
-            [ text "Photo by "
-            , a [ href "https://unsplash.com/@chuttersnap?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText", target "_blank" ]
-                [ text "CHUTTERSNAP" ]
-            , text " on "
-            , a [ href "https://unsplash.com/s/photos/cityscape?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText", target "_blank" ]
-                [ text "Unsplash" ]
+            [ text "Free SVG Background by"
+            , a [ target "_blank", href "https://bgjar.com" ] [ text "BGJar" ]
             ]
         ]
 
