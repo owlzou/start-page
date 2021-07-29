@@ -110,7 +110,7 @@ jsonToData =
         linkDecoder =
             D.map3 Link (D.field "name" D.string) (D.field "url" D.string) (D.maybe (D.field "icon" D.string))
     in
-    D.map2 SaveData (D.field "search" (D.array linkDecoder)) (D.field "navigation" (D.array linkDecoder))
+    D.map2 SaveData (D.field "search" (D.array linkDecoder)) (D.field "navs" (D.array linkDecoder))
 
 
 linkToString : Link -> String
