@@ -15,7 +15,6 @@ import Html.Lazy exposing (lazy, lazy2, lazy3)
 import Icons
 import Json.Decode as D
 import Json.Encode as E
-import Platform exposing (sendToApp)
 import Svg exposing (path)
 import Task
 import Time
@@ -650,7 +649,7 @@ backgroundCredit : Html Msg
 backgroundCredit =
     footer []
         [ span []
-            [ text "Free SVG Background by"
+            [ text "Free SVG Background by "
             , a [ target "_blank", href "https://bgjar.com" ] [ text "BGJar" ]
             ]
         ]

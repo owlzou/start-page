@@ -13,17 +13,6 @@ type alias Link =
     , icon : Maybe String
     }
 
-
-
-{- type alias BackgroundPhoto =
-   { file : String
-   , photographer : String
-   , photographerUrl : String
-   , url : String
-   }
--}
-
-
 type alias SaveData =
     { search : Array Link
     , navs : Array Link
