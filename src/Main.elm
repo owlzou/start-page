@@ -219,7 +219,7 @@ update msg model =
                 saveToStorage <| { search = model.drawer.searchEngines, navs = model.drawer.navs }
 
               else
-                Cmd.none
+                removeStorage ()
             )
 
         OnEntryInput page index type_ str ->
@@ -392,6 +392,9 @@ port send : String -> Cmd msg
 
 
 port saveToStorage : SaveData -> Cmd msg
+
+
+port removeStorage : () -> Cmd msg
 
 
 

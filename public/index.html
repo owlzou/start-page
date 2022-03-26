@@ -11,7 +11,6 @@
     <canvas id="gl" width="800" height="600"></canvas>
     <div id="app"></div>
     <script src="./js/elm.js"></script>
-    <script src="./js/load.js"></script>
     <script src="./js/background.js"></script>
   </body>
 </html>
@@ -20,3 +19,29 @@
     position: fixed;
   }
 </style>
+<script>
+  var data = localStorage.getItem("data");
+
+  var app = Elm.Main.init({
+    node: document.getElementById("app"),
+    flags: JSON.parse(data),
+  });
+
+  //新窗口打开
+  app.ports.newWindow.subscribe((msg) => {
+    window.open(msg);
+  });
+
+  //存储
+  app.ports.saveToStorage.subscribe((msg) => {
+    localStorage.setItem("data", JSON.stringify(msg));
+  });
+
+  app.ports.removeStorage.subscribe(() => {
+    localStorage.removeItem("data");
+  });
+
+  app.ports.send.subscribe((msg) => {
+    app.ports.receiver.send(JSON.parse(msg));
+  });
+</script>

@@ -15,8 +15,8 @@ if (fs.existsSync(DIST)) {
 
 fs.mkdirSync(path.join(DIST, "js"));
 fs.readdirSync("./public/js").forEach(i => {
-    console.log("压缩 " + i)
-    execSync(`npx minify ${path.join("./public/js/", i)} --out-file ${path.join(DIST, "js", i)}`)
+    console.log(`压缩 ./public/js/${i}`)
+    execSync(`npx minify ./public/js/${i} --out-file ${path.join(DIST, "js", i)}`)
 })
 
 console.log("编译&压缩 Elm")

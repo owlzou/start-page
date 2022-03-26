@@ -114,7 +114,7 @@ void main(){
     gl_Position=vec4(aPosition,0.0,1.0);
 }
 `;
-    const fragmentSource = await (await fetch("../bg.frag")).text();
+    const fragmentSource = await (await fetch("./bg.frag")).text();
 
     const canvas = document.getElementById("gl");
     window.requestAnimationFrame((timestamp) => anim(timestamp, canvas, vertexSource, fragmentSource));

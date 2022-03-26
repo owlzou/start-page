@@ -1,5 +1,10 @@
 {
-  "dependencies": {
-    "babel-minify": "^0.5.1"
+  "scripts": {
+    "publish": "gh-pages -d dist --no-history",
+    "produce": "node scripts/produce.js"
+  },
+  "devDependencies": {
+    "babel-minify": "^0.5.1",
+    "gh-pages": "^3.2.3"
   }
 }
