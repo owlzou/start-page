@@ -61,6 +61,10 @@ type alias Drawer =
 
 init : E.Value -> ( Model, Cmd Msg )
 init val =
+    let
+        cmds =
+            Cmd.batch [ Task.perform (\_ -> NoOp) (Dom.setViewport 0 0), Task.perform AdjustTimeZone Time.here ]
+    in
     case D.decodeValue jsonToData val of
         Ok v ->
             let
@@ -70,7 +74,7 @@ init val =
             ( { initModel | drawer = dr }, Task.perform AdjustTimeZone Time.here )
 
         Err _ ->
-            ( initModel, Task.perform AdjustTimeZone Time.here )
+            ( initModel, cmds )
 
 
 initModel : Model
@@ -107,7 +111,7 @@ initModel =
     , viewportHeight = 0
     , targetHeight = 0
     , scrollStep = 0
-    , scrollTime = 600.0
+    , scrollTime = 300.0
     , scrollTimeStep = 50.0
     , scrolling = False
     , page = Search
@@ -281,7 +285,7 @@ update msg model =
             ( { model | drawer = { drawer_ | saveData = not drawer_.saveData } }, Cmd.none )
 
         ChangePage page ->
-            ( { model | page = page }, Task.perform (\i -> GetViewportHeight i page) Dom.getViewport )
+            ( { model | page = page, searchSelectOpen = False, searchFocused = False }, Task.perform (\i -> GetViewportHeight i page) Dom.getViewport )
 
         GetViewportHeight vp page ->
             let
@@ -338,7 +342,7 @@ update msg model =
                         Ok d ->
                             d
 
-                        Err log ->
+                        Err _ ->
                             { search = Array.fromList [ { name = "Error", url = "", icon = Nothing } ], navs = Array.empty }
 
                 newDrawer =
@@ -516,7 +520,7 @@ renderEntry page index link =
 
             Nothing ->
                 span [] []
-        , input [ placeholder "SVG 图标 Path", type_ "text", value <| Maybe.withDefault "" link.icon, onInput (OnEntryInput page index ICON) ]
+        , input [ placeholder "SVG 图标路径", type_ "text", value <| Maybe.withDefault "" link.icon, onInput (OnEntryInput page index ICON) ]
             []
         , button [ class "drawer-entry__delete", onClick (OnEntryRemove page index) ] [ Icons.minusSquare ]
         ]
@@ -647,12 +651,7 @@ nav navs =
 
 backgroundCredit : Html Msg
 backgroundCredit =
-    footer []
-        [ span []
-            [ text "Free SVG Background by "
-            , a [ target "_blank", href "https://bgjar.com" ] [ text "BGJar" ]
-            ]
-        ]
+    footer [] []
 
 
 

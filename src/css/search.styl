@@ -22,12 +22,16 @@
         padding-left var(--search-border-radius)
         height var(--search-font)
         color var(--search-engine-color)
-        font-family sans-serif
 
+        // font-family $sans-serif-family
         svg {
             position relative
             top -2px
             color var(--search-engine-color)
+
+            &:hover {
+                color var(--color-main)
+            }
         }
 
         span {
@@ -64,18 +68,21 @@
             position relative
             top -2px
             color var(--search-engine-color)
+
+            &:hover {
+                color var(--color-main)
+            }
         }
     }
 
     &-list {
         position relative
-        transition 0.5s
+        transition 0.2s
         margin 0 1rem
         border-radius var(--search-border-radius)
         background var(--color-blackbg)
         padding var(--search-padding) var(--search-border-radius)
-        color #fff
-        font-family sans-serif
+        color var(--color-reverse)
 
         &::before {
             position absolute
@@ -107,6 +114,10 @@
                 span {
                     display inline-block
                     vertical-align middle
+                }
+
+                &:hover {
+                    color var(--color-main)
                 }
             }
         }

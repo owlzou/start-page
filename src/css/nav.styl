@@ -12,7 +12,7 @@
     }
 
     li a {
-        color #fff
+        color var(--color-reverse)
         text-decoration none
         cursor pointer
         padding 0.3rem 0.5rem
@@ -21,16 +21,17 @@
         align-items center
         justify-content center
         transition 0.2s
-        color #fff
+        color var(--color-reverse)
         user-select none
         height 100%
+        font-size 15px
 
         &:active {
             background #888
         }
 
         &:hover {
-            background #4b9a9a
+            background var(--color-main)
         }
 
         svg {

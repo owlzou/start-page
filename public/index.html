@@ -8,21 +8,15 @@
     <title>Start Page</title>
   </head>
   <body>
-    <div class="bg"><div class="svg"></div></div>
+    <canvas id="gl" width="800" height="600"></canvas>
     <div id="app"></div>
-    <script src="./elm.js"></script>
-    <script src="./load.js"></script>
+    <script src="./js/elm.js"></script>
+    <script src="./js/load.js"></script>
+    <script src="./js/background.js"></script>
   </body>
 </html>
 <style>
-  .bg {
-    background: #0e2a47;
-  }
-  .svg {
-    background-repeat: no-repeat;
-    background-position-y: 100%;
-    width: 100%;
-    height: 100%;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs'  preserveAspectRatio='none' viewBox='0 0 1440 300'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1008%26quot%3b)' fill='none'%3e%3crect width='1440' height='300' x='0' y='0' fill='%230e2a47'%3e%3c/rect%3e%3cpath d='M 0%2c235 C 57.6%2c192.4 172.8%2c32.8 288%2c22 C 403.2%2c11.2 460.8%2c174.2 576%2c181 C 691.2%2c187.8 748.8%2c45.4 864%2c56 C 979.2%2c66.6 1036.8%2c241 1152%2c234 C 1267.2%2c227 1382.4%2c63.6 1440%2c21L1440 300L0 300z' fill='%23184a7e'%3e%3c/path%3e%3cpath d='M 0%2c31 C 96%2c84.4 288%2c274.4 480%2c298 C 672%2c321.6 768%2c172.8 960%2c149 C 1152%2c125.2 1344%2c173 1440%2c179L1440 300L0 300z' fill='%232264ab'%3e%3c/path%3e%3c/g%3e%3cdefs%3e%3cmask id='SvgjsMask1008'%3e%3crect width='1440' height='300' fill='white'%3e%3c/rect%3e%3c/mask%3e%3c/defs%3e%3c/svg%3e");
+  #gl {
+    position: fixed;
   }
 </style>

@@ -18,11 +18,11 @@
     {
         "label": "build:elm",
         "type": "shell",
-        "command": "elm make src/Main.elm --output dist/elm.js",
+        "command": "elm make src/Main.elm --output dist/js/elm.js",
          "problemMatcher": []
     },
     {
-        "label": "produce",
+        "label": "build:produce",
         "type": "shell",
         "command": "node scripts/produce.js",
         "problemMatcher": []
