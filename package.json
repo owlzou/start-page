@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "publish": "gh-pages -d dist --no-history",
+    "gh-page": "gh-pages -d dist --no-history",
     "produce": "node scripts/produce.js"
   },
   "devDependencies": {

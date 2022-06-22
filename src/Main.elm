@@ -3,6 +3,7 @@ port module Main exposing (main)
 import Array exposing (Array)
 import Browser
 import Browser.Dom as Dom
+import Browser.Events
 import Data exposing (Link, SaveData, dataToString, defaultNav, defaultSearchEngine, initLink, jsonToData, trimLink)
 import File exposing (File)
 import File.Download as Download
@@ -372,7 +373,7 @@ importJSON =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     if model.scrolling then
-        Sub.batch [ Time.every 1000 OnTick, receiver Reload, Time.every model.scrollTimeStep Scroll ]
+        Sub.batch [ Time.every 1000 OnTick, receiver Reload, Browser.Events.onResize (\w h -> ChangePage model.page), Time.every model.scrollTimeStep Scroll ]
 
     else
         Sub.batch [ Time.every 1000 OnTick, receiver Reload ]
@@ -480,17 +481,15 @@ drawer d =
 
                 --搜索
                 , h3 []
-                    [ text "搜索引擎设置"
-                    , button [ class "drawer-entry__add", onClick (OnEntryAdd Search) ] [ Icons.plusSquare ]
-                    ]
+                    [ text "搜索引擎设置" ]
                 , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Search) d.searchEngines)
+                , button [ class "l-button width-btn", onClick (OnEntryAdd Search) ] [ Icons.plusSquare ]
 
                 -- 导航
                 , h3 []
-                    [ text "导航设置"
-                    , button [ class "drawer-entry__add", onClick (OnEntryAdd Nav) ] [ Icons.plusSquare ]
-                    ]
+                    [ text "导航设置" ]
                 , Keyed.node "ul" [] (Array.toList <| Array.indexedMap (keyedLink Nav) d.navs)
+                , button [ class "l-button width-btn", onClick (OnEntryAdd Nav) ] [ Icons.plusSquare ]
 
                 -- 关于
                 , h3 [] [ text "关于" ]

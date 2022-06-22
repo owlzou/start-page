@@ -13,7 +13,10 @@ if (fs.existsSync(DIST)) {
   fs.mkdirSync(DIST);
 }
 
-fs.mkdirSync(path.join(DIST, "js"));
+if (!fs.existsSync(path.join(DIST, "js"))) {
+  fs.mkdirSync(path.join(DIST, "js"));
+}
+
 
 /* fs.readdirSync("./public/js").forEach((i) => {
   console.log(`压缩 ./public/js/${i}`);

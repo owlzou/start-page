@@ -1,4 +1,16 @@
 /* -----------------抽屉----------------- */
+scrollbar-track(color1, color2) {
+    scrollbar-color color1 color2
+
+    &::-webkit-scrollbar {
+        background color2
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background color1
+    }
+}
+
 .drawer {
     position fixed
     top 0
@@ -7,7 +19,7 @@
     left 0
     transition transform 0.5s
     z-index 900
-    background rgba(0, 0, 0, 0.8)
+    background var(--color-blackbg)
     width 40rem
     max-width 100%
     color #fff
@@ -66,6 +78,7 @@
     &-content {
         overflow-y scroll
         height 100vh
+        scrollbar-track(#90909099, transparent)
 
         > div {
             padding 1rem
@@ -151,6 +164,7 @@
     }
 }
 
+/* 导入、导出、关于等大按钮 */
 .l-button {
     transition 0.5s
     margin 0.5rem
@@ -172,6 +186,14 @@
 
 .down {
     animation turn-up 1s linear 1
+}
+
+.width-btn {
+    width 100% !important
+    text-align center
+    display inline-flex
+    align-items center
+    justify-content center
 }
 
 @keyframes turn-up {
