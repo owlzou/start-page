@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Start Page</title>
+  </head>
+  <body>
+    <div class="bg"></div>
+    <div id="app"></div>
+    <script src="./js/elm.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+    <script src="https://fastly.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+  </body>
+</html>
+<style>
+  #gl {
+    position: fixed;
+  }
+</style>
+<script>
+  var data = localStorage.getItem("data");
+
+  var app = Elm.Main.init({
+    node: document.getElementById("app"),
+    flags: JSON.parse(data),
+  });
+
+  //新窗口打开
+  app.ports.newWindow.subscribe((msg) => {
+    window.open(msg);
+  });
+
+  //存储
+  app.ports.saveToStorage.subscribe((msg) => {
+    localStorage.setItem("data", JSON.stringify(msg));
+  });
+
+  app.ports.removeStorage.subscribe(() => {
+    localStorage.removeItem("data");
+  });
+
+  app.ports.send.subscribe((msg) => {
+    app.ports.receiver.send(JSON.parse(msg));
+  });
+
+  VANTA.NET({
+    el: ".bg",
+    mouseControls: true,
+    touchControls: true,
+    gyroControls: false,
+    minHeight: 200.0,
+    minWidth: 200.0,
+    scale: 1.0,
+    scaleMobile: 1.0,
+  });
+</script>
